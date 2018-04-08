@@ -3,6 +3,7 @@ import Status from '../components/status';
 import { makeGetStatus } from '../selectors';
 import {
   replyCompose,
+  quoteCompose,
   mentionCompose,
   directCompose,
 } from '../actions/compose';
@@ -20,6 +21,8 @@ import {
   deleteStatus,
   hideStatus,
   revealStatus,
+  hideQuote,
+  revealQuote,
 } from '../actions/statuses';
 import { initMuteModal } from '../actions/mutes';
 import { initBlockModal } from '../actions/blocks';
@@ -80,6 +83,10 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
     } else {
       dispatch(openModal('BOOST', { status, onReblog: this.onModalReblog }));
     }
+  },
+
+  onQuote (status, router) {
+    dispatch(quoteCompose(status, router));
   },
 
   onFavourite (status) {
@@ -159,6 +166,14 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
       dispatch(revealStatus(status.get('id')));
     } else {
       dispatch(hideStatus(status.get('id')));
+    }
+  },
+
+  onQuoteToggleHidden (status) {
+    if (status.get('quote_hidden')) {
+      dispatch(revealQuote(status.get('id')));
+    } else {
+      dispatch(hideQuote(status.get('id')));
     }
   },
 
