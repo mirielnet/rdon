@@ -141,7 +141,6 @@ class RemoveStatusService < BaseService
 
     redis.publish('timeline:public', @payload)
     if @status.local?
-      redis.publish('timeline:public:local', @payload)
     else
       redis.publish('timeline:public:remote', @payload)
     end
@@ -152,7 +151,6 @@ class RemoveStatusService < BaseService
 
     redis.publish('timeline:public:media', @payload)
     if @status.local?
-      redis.publish('timeline:public:local:media', @payload)
     else
       redis.publish('timeline:public:remote:media', @payload)
     end

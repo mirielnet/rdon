@@ -82,7 +82,6 @@ class FanOutOnWriteService < BaseService
 
     Redis.current.publish('timeline:public', @payload)
     if status.local?
-      Redis.current.publish('timeline:public:local', @payload)
     else
       Redis.current.publish('timeline:public:remote', @payload)
     end
@@ -93,7 +92,6 @@ class FanOutOnWriteService < BaseService
 
     Redis.current.publish('timeline:public:media', @payload)
     if status.local?
-      Redis.current.publish('timeline:public:local:media', @payload)
     else
       Redis.current.publish('timeline:public:remote:media', @payload)
     end
