@@ -139,7 +139,6 @@ class RemoveStatusService < BaseService
 
     @status.tags.map(&:name).each do |hashtag|
       redis.publish("timeline:hashtag:#{hashtag.mb_chars.downcase}", @payload)
-      redis.publish("timeline:hashtag:#{hashtag.mb_chars.downcase}:local", @payload) if @status.local?
     end
   end
 
@@ -148,7 +147,6 @@ class RemoveStatusService < BaseService
 
     redis.publish('timeline:public', @payload)
     if @status.local?
-      redis.publish('timeline:public:local', @payload)
     else
       redis.publish('timeline:public:remote', @payload)
       redis.publish("timeline:public:domain:#{@account.domain.mb_chars.downcase}", @payload)
@@ -160,7 +158,6 @@ class RemoveStatusService < BaseService
 
     redis.publish('timeline:public:media', @payload)
     if @status.local?
-      redis.publish('timeline:public:local:media', @payload)
     else
       redis.publish('timeline:public:remote:media', @payload)
       redis.publish("timeline:public:domain:media:#{@account.domain.mb_chars.downcase}", @payload)
