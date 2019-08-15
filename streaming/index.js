@@ -365,14 +365,10 @@ const startWorker = (workerId) => {
       return 'user:notification';
     case '/api/v1/streaming/public':
       return onlyMedia ? 'public:media' : 'public';
-    case '/api/v1/streaming/public/local':
-      return onlyMedia ? 'public:local:media' : 'public:local';
     case '/api/v1/streaming/public/remote':
       return onlyMedia ? 'public:remote:media' : 'public:remote';
     case '/api/v1/streaming/hashtag':
       return 'hashtag';
-    case '/api/v1/streaming/hashtag/local':
-      return 'hashtag:local';
     case '/api/v1/streaming/direct':
       return 'direct';
     case '/api/v1/streaming/list':
@@ -385,12 +381,9 @@ const startWorker = (workerId) => {
   const PUBLIC_CHANNELS = [
     'public',
     'public:media',
-    'public:local',
-    'public:local:media',
     'public:remote',
     'public:remote:media',
     'hashtag',
-    'hashtag:local',
   ];
 
   /**
@@ -804,13 +797,6 @@ const startWorker = (workerId) => {
       });
 
       break;
-    case 'public:local':
-      resolve({
-        channelIds: ['timeline:public:local'],
-        options: { needsFiltering: true, notificationOnly: false },
-      });
-
-      break;
     case 'public:remote':
       resolve({
         channelIds: ['timeline:public:remote'],
@@ -821,13 +807,6 @@ const startWorker = (workerId) => {
     case 'public:media':
       resolve({
         channelIds: ['timeline:public:media'],
-        options: { needsFiltering: true, notificationOnly: false },
-      });
-
-      break;
-    case 'public:local:media':
-      resolve({
-        channelIds: ['timeline:public:local:media'],
         options: { needsFiltering: true, notificationOnly: false },
       });
 
@@ -857,17 +836,6 @@ const startWorker = (workerId) => {
       }
 
       break;
-    case 'hashtag:local':
-      if (!params.tag || params.tag.length === 0) {
-        reject('No tag for stream provided');
-      } else {
-        resolve({
-          channelIds: [`timeline:hashtag:${params.tag.toLowerCase()}:local`],
-          options: { needsFiltering: true, notificationOnly: false },
-        });
-      }
-
-      break;
     case 'list':
       authorizeListAccess(params.list, req).then(() => {
         resolve({
@@ -892,7 +860,7 @@ const startWorker = (workerId) => {
   const streamNameFromChannelName = (channelName, params) => {
     if (channelName === 'list') {
       return [channelName, params.list];
-    } else if (['hashtag', 'hashtag:local'].includes(channelName)) {
+    } else if (channelName === 'hashtag') {
       return [channelName, params.tag];
     } else {
       return [channelName];
