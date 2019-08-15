@@ -140,14 +140,12 @@ class RemoveStatusService < BaseService
     return unless @status.public_visibility?
 
     redis.publish('timeline:public', @payload)
-    redis.publish('timeline:public:local', @payload) if @status.local?
   end
 
   def remove_from_media
     return unless @status.public_visibility?
 
     redis.publish('timeline:public:media', @payload)
-    redis.publish('timeline:public:local:media', @payload) if @status.local?
   end
 
   def remove_media
