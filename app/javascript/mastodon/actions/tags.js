@@ -12,6 +12,14 @@ export const HASHTAG_UNFOLLOW_REQUEST = 'HASHTAG_UNFOLLOW_REQUEST';
 export const HASHTAG_UNFOLLOW_SUCCESS = 'HASHTAG_UNFOLLOW_SUCCESS';
 export const HASHTAG_UNFOLLOW_FAIL    = 'HASHTAG_UNFOLLOW_FAIL';
 
+export const HASHTAG_FAVOURITE_REQUEST = 'HASHTAG_FAVOURITE_REQUEST';
+export const HASHTAG_FAVOURITE_SUCCESS = 'HASHTAG_FAVOURITE_SUCCESS';
+export const HASHTAG_FAVOURITE_FAIL    = 'HASHTAG_FAVOURITE_FAIL';
+
+export const HASHTAG_UNFAVOURITE_REQUEST = 'HASHTAG_UNFAVOURITE_REQUEST';
+export const HASHTAG_UNFAVOURITE_SUCCESS = 'HASHTAG_UNFAVOURITE_SUCCESS';
+export const HASHTAG_UNFAVOURITE_FAIL    = 'HASHTAG_UNFAVOURITE_FAIL';
+
 export const fetchHashtag = name => (dispatch, getState) => {
   dispatch(fetchHashtagRequest());
 
@@ -87,6 +95,60 @@ export const unfollowHashtagSuccess = (name, tag) => ({
 
 export const unfollowHashtagFail = (name, error) => ({
   type: HASHTAG_UNFOLLOW_FAIL,
+  name,
+  error,
+});
+
+export const favouriteHashtag = name => (dispatch, getState) => {
+  dispatch(favouriteHashtagRequest(name));
+
+  api(getState).post(`/api/v1/tags/${name}/favourite`).then(({ data }) => {
+    dispatch(favouriteHashtagSuccess(name, data));
+  }).catch(err => {
+    dispatch(favouriteHashtagFail(name, err));
+  });
+};
+
+export const favouriteHashtagRequest = name => ({
+  type: HASHTAG_FAVOURITE_REQUEST,
+  name,
+});
+
+export const favouriteHashtagSuccess = (name, tag) => ({
+  type: HASHTAG_FAVOURITE_SUCCESS,
+  name,
+  tag,
+});
+
+export const favouriteHashtagFail = (name, error) => ({
+  type: HASHTAG_FAVOURITE_FAIL,
+  name,
+  error,
+});
+
+export const unfavouriteHashtag = name => (dispatch, getState) => {
+  dispatch(unfavouriteHashtagRequest(name));
+
+  api(getState).post(`/api/v1/tags/${name}/unfavourite`).then(({ data }) => {
+    dispatch(unfavouriteHashtagSuccess(name, data));
+  }).catch(err => {
+    dispatch(unfavouriteHashtagFail(name, err));
+  });
+};
+
+export const unfavouriteHashtagRequest = name => ({
+  type: HASHTAG_UNFAVOURITE_REQUEST,
+  name,
+});
+
+export const unfavouriteHashtagSuccess = (name, tag) => ({
+  type: HASHTAG_UNFAVOURITE_SUCCESS,
+  name,
+  tag,
+});
+
+export const unfavouriteHashtagFail = (name, error) => ({
+  type: HASHTAG_UNFAVOURITE_FAIL,
   name,
   error,
 });

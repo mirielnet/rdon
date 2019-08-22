@@ -6,6 +6,7 @@ class REST::TagSerializer < ActiveModel::Serializer
   attributes :name, :url, :history
 
   attribute :following, if: :current_user?
+  attribute :favourited, if: :current_user?
 
   def url
     tag_url(object)
@@ -20,6 +21,14 @@ class REST::TagSerializer < ActiveModel::Serializer
       instance_options[:relationships].following_map[object.id] || false
     else
       TagFollow.where(tag_id: object.id, account_id: current_user.account_id).exists?
+    end
+  end
+
+  def favourited
+    if instance_options && instance_options[:relationships]
+      instance_options[:relationships].favourites_map[object.id] || false
+    else
+      FavouriteTag.where(tag_id: object.id, account_id: current_user.account_id).exists?
     end
   end
 

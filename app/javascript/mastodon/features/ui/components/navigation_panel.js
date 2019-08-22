@@ -6,6 +6,7 @@ import { showTrends } from 'mastodon/initial_state';
 import NotificationsCounterIcon from './notifications_counter_icon';
 import FollowRequestsNavLink from './follow_requests_nav_link';
 import ListPanel from './list_panel';
+import FavouriteTagPanel from './favourite_tag_panel';
 import TrendsContainer from 'mastodon/features/getting_started/containers/trends_container';
 
 const NavigationPanel = () => (
@@ -22,6 +23,7 @@ const NavigationPanel = () => (
     <NavLink className='column-link column-link--transparent' to='/lists'><Icon className='column-link__icon' id='list-ul' fixedWidth /><FormattedMessage id='navigation_bar.lists' defaultMessage='Lists' /></NavLink>
 
     <ListPanel />
+    <FavouriteTagPanel />
 
     <hr />
 

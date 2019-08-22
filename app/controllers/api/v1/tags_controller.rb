@@ -21,6 +21,16 @@ class Api::V1::TagsController < Api::BaseController
     render json: @tag, serializer: REST::TagSerializer
   end
 
+  def favourite
+    FavouriteTag.create!(tag: @tag, account: current_account)
+    render json: @tag, serializer: REST::TagSerializer
+  end
+
+  def unfavourite
+    FavouriteTag.find_by(account: current_account, tag: @tag)&.destroy!
+    render json: @tag, serializer: REST::TagSerializer
+  end
+
   private
 
   def set_or_create_tag

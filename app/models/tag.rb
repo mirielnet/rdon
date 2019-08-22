@@ -23,6 +23,7 @@ class Tag < ApplicationRecord
   has_and_belongs_to_many :accounts
 
   has_many :passive_relationships, class_name: 'TagFollow', inverse_of: :tag, dependent: :destroy
+  has_many :favourite_tags, dependent: :destroy, inverse_of: :tag
   has_many :featured_tags, dependent: :destroy, inverse_of: :tag
   has_many :followers, through: :passive_relationships, source: :account
 

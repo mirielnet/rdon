@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import ImmutablePropTypes from 'react-immutable-proptypes';
@@ -11,13 +11,15 @@ import { addColumn, removeColumn, moveColumn } from 'mastodon/actions/columns';
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl';
 import { connectHashtagStream } from 'mastodon/actions/streaming';
 import { isEqual } from 'lodash';
-import { fetchHashtag, followHashtag, unfollowHashtag } from 'mastodon/actions/tags';
+import { fetchHashtag, followHashtag, unfollowHashtag, favouriteHashtag, unfavouriteHashtag } from 'mastodon/actions/tags';
 import Icon from 'mastodon/components/icon';
 import classNames from 'classnames';
 
 const messages = defineMessages({
   followHashtag: { id: 'hashtag.follow', defaultMessage: 'Follow hashtag' },
   unfollowHashtag: { id: 'hashtag.unfollow', defaultMessage: 'Unfollow hashtag' },
+  favouriteHashtag: { id: 'hashtag.favourite', defaultMessage: 'Favourite hashtag' },
+  unfavouriteHashtag: { id: 'hashtag.unfavourite', defaultMessage: 'Unfavourite hashtag' },
 });
 
 const mapStateToProps = (state, props) => ({
@@ -166,20 +168,37 @@ class HashtagTimeline extends React.PureComponent {
     }
   }
 
+  handleFavourite = () => {
+    const { dispatch, params, tag } = this.props;
+    const { id } = params;
+
+    if (tag.get('favourited')) {
+      dispatch(unfavouriteHashtag(id));
+    } else {
+      dispatch(favouriteHashtag(id));
+    }
+  }
+
   render () {
     const { hasUnread, columnId, multiColumn, tag, intl } = this.props;
     const { id, local } = this.props.params;
     const pinned = !!columnId;
 
-    let followButton;
+    let tagActionButton;
 
     if (tag) {
       const following = tag.get('following');
+      const favourited = tag.get('favourited');
 
-      followButton = (
-        <button className={classNames('column-header__button')} onClick={this.handleFollow} title={intl.formatMessage(following ? messages.unfollowHashtag : messages.followHashtag)} aria-label={intl.formatMessage(following ? messages.unfollowHashtag : messages.followHashtag)} aria-pressed={following ? 'true' : 'false'}>
-          <Icon id={following ? 'user-times' : 'user-plus'} fixedWidth className='column-header__icon' />
-        </button>
+      tagActionButton = (
+        <Fragment>
+          <button className={classNames('column-header__button', 'icon-button', 'user-icon', { 'active': following })} onClick={this.handleFollow} title={intl.formatMessage(following ? messages.unfollowHashtag : messages.followHashtag)} aria-label={intl.formatMessage(following ? messages.unfollowHashtag : messages.followHashtag)} aria-pressed={following ? 'true' : 'false'}>
+            <Icon id={following ? 'user-times' : 'user-plus'} fixedWidth className='column-header__icon' />
+          </button>
+          <button className={classNames('column-header__button', 'icon-button', 'star-icon', { 'active': favourited })} onClick={this.handleFavourite} title={intl.formatMessage(favourited ? messages.unfavouriteHashtag : messages.favouriteHashtag)} aria-label={intl.formatMessage(favourited ? messages.unfavouriteHashtag : messages.favouriteHashtag)} aria-pressed={favourited ? 'true' : 'false'}>
+            <Icon id='star' fixedWidth className='column-header__icon' />
+          </button>
+        </Fragment>
       );
     }
 
@@ -194,7 +213,7 @@ class HashtagTimeline extends React.PureComponent {
           onClick={this.handleHeaderClick}
           pinned={pinned}
           multiColumn={multiColumn}
-          extraButton={followButton}
+          extraButton={tagActionButton}
           showBackButton
         >
           {columnId && <ColumnSettingsContainer columnId={columnId} />}

@@ -161,6 +161,7 @@ Rails.application.routes.draw do
     resources :aliases, only: [:index, :create, :destroy]
     resources :sessions, only: [:destroy]
     resources :featured_tags, only: [:index, :create, :destroy]
+    resources :favourite_tags, only: [:index, :create, :destroy]
     resources :login_activities, only: [:index]
   end
 
@@ -543,6 +544,8 @@ Rails.application.routes.draw do
         member do
           post :follow
           post :unfollow
+          post :favourite
+          post :unfavourite
         end
       end
 
@@ -557,6 +560,7 @@ Rails.application.routes.draw do
       end
 
       resources :featured_tags, only: [:index, :create, :destroy]
+      resources :favourite_tags, only: [:index]
 
       resources :polls, only: [:create, :show] do
         resources :votes, only: :create, controller: 'polls/votes'

@@ -4,6 +4,10 @@ import {
   HASHTAG_FOLLOW_FAIL,
   HASHTAG_UNFOLLOW_REQUEST,
   HASHTAG_UNFOLLOW_FAIL,
+  HASHTAG_FAVOURITE_REQUEST,
+  HASHTAG_FAVOURITE_FAIL,
+  HASHTAG_UNFAVOURITE_REQUEST,
+  HASHTAG_UNFAVOURITE_FAIL,
 } from 'mastodon/actions/tags';
 import { Map as ImmutableMap, fromJS } from 'immutable';
 
@@ -19,6 +23,12 @@ export default function tags(state = initialState, action) {
   case HASHTAG_FOLLOW_FAIL:
   case HASHTAG_UNFOLLOW_REQUEST:
     return state.setIn([action.name, 'following'], false);
+  case HASHTAG_FAVOURITE_REQUEST:
+  case HASHTAG_UNFAVOURITE_FAIL:
+    return state.setIn([action.name, 'favourited'], true);
+  case HASHTAG_FAVOURITE_FAIL:
+  case HASHTAG_UNFAVOURITE_REQUEST:
+    return state.setIn([action.name, 'favourited'], false);
   default:
     return state;
   }

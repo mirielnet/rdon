@@ -1715,8 +1715,28 @@ a.account__display-name {
   }
 }
 
+.column-header__button.icon-button {
+  padding: 4px;
+
+  .column-header__icon {
+    margin: 0;
+  }
+
+  &.active {
+    background: inherit;
+  }
+}
+
+.icon-button.user-icon.active {
+  &, &:hover {
+    color: $ui-highlight-color;
+  }
+}
+
 .icon-button.star-icon.active {
-  color: $gold-star;
+  &, &:hover {
+    color: $gold-star;
+  }
 }
 
 .icon-button.bookmark-icon.active {
