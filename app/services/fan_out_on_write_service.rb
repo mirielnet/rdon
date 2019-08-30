@@ -22,6 +22,10 @@ class FanOutOnWriteService < BaseService
     return if status.account.silenced? || !status.public_visibility? || status.reblog?
 
     deliver_to_hashtags(status)
+    deliver_to_hashtag_followers(status)
+    deliver_to_subscribers(status)
+    deliver_to_domain_subscribers(status)
+    deliver_to_keyword_subscribers(status)
 
     return if status.reply? && status.in_reply_to_account_id != status.account_id
 
@@ -43,6 +47,47 @@ class FanOutOnWriteService < BaseService
       FeedInsertWorker.push_bulk(followers) do |follower|
         [status.id, follower.id, :home]
       end
+    end
+  end
+
+  def deliver_to_subscribers(status)
+    Rails.logger.debug "Delivering status #{status.id} to subscribers"
+
+    status.account.subscribers_for_local_distribution.select(:id).reorder(nil).find_in_batches do |subscribings|
+      FeedInsertWorker.push_bulk(subscribings) do |subscribing|
+        [status.id, subscribing.id, :home]
+      end
+    end
+  end
+
+  def deliver_to_domain_subscribers(status)
+    Rails.logger.debug "Delivering status #{status.id} to domain subscribers"
+
+    DomainSubscribe.domain_to_home(status.account.domain).select(:id, :account_id).find_in_batches do |subscribes|
+      FeedInsertWorker.push_bulk(subscribes) do |subscribe|
+        [status.id, subscribe.account_id, :home]
+      end
+    end
+
+    DomainSubscribe.domain_to_list(status.account.domain).select(:id, :list_id).find_in_batches do |subscribes|
+      FeedInsertWorker.push_bulk(subscribes) do |subscribe|
+        [status.id, subscribe.list_id, :list]
+      end
+    end
+  end
+
+  def deliver_to_keyword_subscribers(status)
+    Rails.logger.debug "Delivering status #{status.id} to keyword subscribers"
+
+    match_accounts = []
+
+    KeywordSubscribe.active.without_local_followed(status.account).order(:account_id).each do |keyword_subscribe|
+      next if match_accounts[-1] == keyword_subscribe.account_id
+      match_accounts << keyword_subscribe.account_id if keyword_subscribe.match?(status.index_text)
+    end
+
+    FeedInsertWorker.push_bulk(match_accounts) do |match_account|
+      [status.id, match_account, :home]
     end
   end
 
@@ -90,6 +135,14 @@ class FanOutOnWriteService < BaseService
           [status.id, list.id, :list]
         end
       end
+    end
+  end
+
+  def deliver_to_hashtag_followers(status)
+    Rails.logger.debug "Delivering status #{status.id} to hashtag followers"
+
+    FeedInsertWorker.push_bulk(FollowTag.where(tag: status.tags).pluck(:account_id).uniq) do |follower|
+      [status.id, follower, :home]
     end
   end
 
