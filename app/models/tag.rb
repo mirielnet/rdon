@@ -26,6 +26,7 @@ class Tag < ApplicationRecord
   has_many :favourite_tags, dependent: :destroy, inverse_of: :tag
   has_many :featured_tags, dependent: :destroy, inverse_of: :tag
   has_many :followers, through: :passive_relationships, source: :account
+  has_many :follow_tags, dependent: :destroy, inverse_of: :tag
 
   HASHTAG_SEPARATORS = "_\u00B7\u200c"
   HASHTAG_NAME_RE    = "([[:word:]_][[:word:]#{HASHTAG_SEPARATORS}]*[[:alpha:]#{HASHTAG_SEPARATORS}][[:word:]#{HASHTAG_SEPARATORS}]*[[:word:]_])|([[:word:]_]*[[:alpha:]][[:word:]_]*)"

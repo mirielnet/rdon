@@ -16,7 +16,14 @@ SimpleNavigation::Configuration.run do |navigation|
       s.item :other, safe_join([fa_icon('cog fw'), t('preferences.other')]), settings_preferences_other_path
     end
 
-    n.item :relationships, safe_join([fa_icon('users fw'), t('settings.relationships')]), relationships_path, if: -> { current_user.functional? }
+    n.item :follow_and_subscriptions, safe_join([fa_icon('users fw'), t('settings.follow_and_subscriptions')]), relationships_path, if: -> { current_user.functional? } do |s|
+      s.item :relationships, safe_join([fa_icon('users fw'), t('settings.relationships')]), relationships_path, highlights_on: %r{/relationships}
+      s.item :follow_tags, safe_join([fa_icon('hashtag fw'), t('settings.follow_tags')]), settings_follow_tags_path, highlights_on: %r{/follow_tags}
+      s.item :account_subscribes, safe_join([fa_icon('users fw'), t('settings.account_subscribes')]), settings_account_subscribes_path, highlights_on: %r{/account_subscribes}
+      s.item :domain_subscribes, safe_join([fa_icon('server fw'), t('settings.domain_subscribes')]), settings_domain_subscribes_path, highlights_on: %r{/domain_subscribes}
+      s.item :keyword_subscribes, safe_join([fa_icon('search fw'), t('settings.keyword_subscribes')]), settings_keyword_subscribes_path, highlights_on: %r{/keyword_subscribes}
+    end
+
     n.item :filters, safe_join([fa_icon('filter fw'), t('filters.index.title')]), filters_path, highlights_on: %r{/filters}, if: -> { current_user.functional? }
     n.item :statuses_cleanup, safe_join([fa_icon('history fw'), t('settings.statuses_cleanup')]), statuses_cleanup_path, if: -> { current_user.functional? }
 

@@ -5,7 +5,7 @@ import { FormattedMessage } from 'react-intl';
 /**
  * Returns custom renderer for one of the common counter types
  *
- * @param {"statuses" | "following" | "followers"} counterType
+ * @param {"statuses" | "following" | "followers" | "subscribing"} counterType
  * Type of the counter
  * @param {boolean} isBold Whether display number must be displayed in bold
  * @returns {(displayNumber: JSX.Element, pluralReady: number) => JSX.Element}
@@ -50,6 +50,18 @@ export function counterRenderer(counterType, isBold = true) {
       <FormattedMessage
         id='account.followers_counter'
         defaultMessage='{count, plural, one {{counter} Follower} other {{counter} Followers}}'
+        values={{
+          count: pluralReady,
+          counter: renderCounter(displayNumber),
+        }}
+      />
+    );
+  }
+  case 'subscribing': {
+    return (displayNumber, pluralReady) => (
+      <FormattedMessage
+        id='account.subscribing_counter'
+        defaultMessage='{count, plural, one {{counter} Subscribe} other {{counter} Subscribes}}'
         values={{
           count: pluralReady,
           counter: renderCounter(displayNumber),

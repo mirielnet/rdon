@@ -9,6 +9,7 @@ const normalizeAccount = (state, account) => {
 
   delete account.followers_count;
   delete account.following_count;
+  delete account.subscribing_count;
   delete account.statuses_count;
 
   account.hidden = state.getIn([account.id, 'hidden']) === false ? false : account.limited;

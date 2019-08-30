@@ -9,9 +9,9 @@ class FeedInsertWorker
     @options   = options.symbolize_keys
 
     case @type
-    when :home, :tags
+    when :home, :tags, :subscribes
       @follower = Account.find(id)
-    when :list
+    when :list, :subscribes_list
       @list     = List.find(id)
       @follower = @list.account
     end
@@ -36,10 +36,12 @@ class FeedInsertWorker
     case @type
     when :home
       FeedManager.instance.filter?(:home, @status, @follower)
-    when :tags
+    when :tags, :subscribes
       FeedManager.instance.filter?(:tags, @status, @follower)
     when :list
       FeedManager.instance.filter?(:list, @status, @list)
+    when :subscribes_list
+      FeedManager.instance.filter?(:subscribes_list, @status, @list)
     end
   end
 
@@ -51,18 +53,18 @@ class FeedInsertWorker
 
   def perform_push
     case @type
-    when :home, :tags
+    when :home, :tags, :subscribes
       FeedManager.instance.push_to_home(@follower, @status, update: update?)
-    when :list
+    when :list, :subscribes_list
       FeedManager.instance.push_to_list(@list, @status, update: update?)
     end
   end
 
   def perform_unpush
     case @type
-    when :home, :tags
+    when :home, :tags, :subscribes
       FeedManager.instance.unpush_from_home(@follower, @status, update: true)
-    when :list
+    when :list, :subscribes_list
       FeedManager.instance.unpush_from_list(@list, @status, update: true)
     end
   end

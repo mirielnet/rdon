@@ -45,8 +45,10 @@ class FeedManager
       filter_from_list?(status, receiver) || filter_from_home?(status, receiver.account_id, build_crutches(receiver.account_id, [status]))
     when :mentions
       filter_from_mentions?(status, receiver.id)
-    when :tags
+    when :tags, :subscribes
       filter_from_tags?(status, receiver.id, build_crutches(receiver.id, [status]))
+    when :subscribes_list
+      filter_from_tags?(status, receiver.account_id, build_crutches(receiver.account_id, [status]))
     else
       false
     end
@@ -106,10 +108,10 @@ class FeedManager
   # @param [Account] from_account
   # @param [Account] into_account
   # @return [void]
-  def merge_into_home(from_account, into_account)
+  def merge_into_home(from_account, into_account, public_only = false)
     timeline_key = key(:home, into_account.id)
     aggregate    = true
-    query        = from_account.statuses.where(visibility: [:public, :unlisted, :private]).includes(:preloadable_poll, :media_attachments, reblog: :account).limit(FeedManager::MAX_ITEMS / 4)
+    query        = from_account.statuses.where(visibility: public_only ? :public : [:public, :unlisted, :private]).includes(:preloadable_poll, :media_attachments, reblog: :account).limit(FeedManager::MAX_ITEMS / 4)
 
     if redis.zcard(timeline_key) >= FeedManager::MAX_ITEMS / 4
       oldest_home_score = redis.zrange(timeline_key, 0, 0, with_scores: true).first.last.to_i

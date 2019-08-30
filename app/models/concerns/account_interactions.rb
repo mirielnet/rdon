@@ -17,6 +17,10 @@ module AccountInteractions
       follow_mapping(Follow.where(account_id: target_account_ids, target_account_id: account_id), :account_id)
     end
 
+    def subscribing_map(target_account_ids, account_id)
+      follow_mapping(AccountSubscribe.where(target_account_id: target_account_ids, account_id: account_id), :target_account_id)
+    end
+
     def blocking_map(target_account_ids, account_id)
       follow_mapping(Block.where(target_account_id: target_account_ids, account_id: account_id), :target_account_id)
     end
@@ -98,6 +102,13 @@ module AccountInteractions
     has_many :conversation_mutes, dependent: :destroy
     has_many :domain_blocks, class_name: 'AccountDomainBlock', dependent: :destroy
     has_many :announcement_mutes, dependent: :destroy
+
+    # Subscribers
+    has_many :active_subscribes,  class_name: 'AccountSubscribe', foreign_key: 'account_id',        dependent: :destroy
+    has_many :passive_subscribes, class_name: 'AccountSubscribe', foreign_key: 'target_account_id', dependent: :destroy
+
+    has_many :subscribing, through: :active_subscribes,  source: :target_account
+    has_many :subscribers, through: :passive_subscribes, source: :account
   end
 
   def follow!(other_account, reblogs: nil, notify: nil, uri: nil, rate_limit: false, bypass_limit: false)
@@ -183,6 +194,14 @@ module AccountInteractions
     block&.destroy
   end
 
+  def subscribe!(other_account, show_reblogs = true, list_id = nil)
+    rel = active_subscribes.find_or_create_by!(target_account: other_account, show_reblogs: show_reblogs, list_id: list_id)
+
+    remove_potential_friendship(other_account)
+
+    rel
+  end
+
   def following?(other_account)
     active_relationships.where(target_account: other_account).exists?
   end
@@ -247,6 +266,10 @@ module AccountInteractions
     account_pins.where(target_account: account).exists?
   end
 
+  def subscribing?(other_account, list_id = nil)
+    active_subscribes.where(target_account: other_account, list_id: list_id).exists?
+  end
+
   def status_matches_filters(status)
     active_filters = CustomFilter.cached_filters_for(id)
     CustomFilter.apply_cached_filters(active_filters, status)
@@ -258,9 +281,23 @@ module AccountInteractions
              .where('users.current_sign_in_at > ?', User::ACTIVE_DURATION.ago)
   end
 
+  def subscribers_for_local_distribution
+    AccountSubscribe.home
+                    .joins(account: :user)
+                    .where(target_account_id: id)
+                    .where('users.current_sign_in_at > ?', User::ACTIVE_DURATION.ago)
+  end
+
   def lists_for_local_distribution
     lists.joins(account: :user)
          .where('users.current_sign_in_at > ?', User::ACTIVE_DURATION.ago)
+  end
+
+  def list_subscribers_for_local_distribution
+    AccountSubscribe.list
+                    .joins(account: :user)
+                    .where(target_account_id: id)
+                    .where('users.current_sign_in_at > ?', User::ACTIVE_DURATION.ago)
   end
 
   def remote_followers_hash(url)

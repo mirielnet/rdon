@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import ImmutablePureComponent from 'react-immutable-pure-component';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 import PropTypes from 'prop-types';
@@ -9,13 +9,15 @@ import DisplayName from 'mastodon/components/display_name';
 import Permalink from 'mastodon/components/permalink';
 import Button from 'mastodon/components/button';
 import { FormattedMessage, injectIntl, defineMessages } from 'react-intl';
-import { autoPlayGif, me, unfollowModal } from 'mastodon/initial_state';
+import { autoPlayGif, me, unfollowModal, unsubscribeModal } from 'mastodon/initial_state';
 import ShortNumber from 'mastodon/components/short_number';
 import {
   followAccount,
   unfollowAccount,
+  subscribeAccount,
+  unsubscribeAccount,
   unblockAccount,
-  unmuteAccount,
+  unmuteAccount
 } from 'mastodon/actions/accounts';
 import { openModal } from 'mastodon/actions/modal';
 import classNames from 'classnames';
@@ -24,6 +26,8 @@ const messages = defineMessages({
   unfollow: { id: 'account.unfollow', defaultMessage: 'Unfollow' },
   follow: { id: 'account.follow', defaultMessage: 'Follow' },
   cancel_follow_request: { id: 'account.cancel_follow_request', defaultMessage: 'Cancel follow request' },
+  unsubscribe: { id: 'account.unsubscribe', defaultMessage: 'Unsubscribe' },
+  subscribe: { id: 'account.subscribe', defaultMessage: 'Subscribe' },
   requested: { id: 'account.requested', defaultMessage: 'Awaiting approval. Click to cancel follow request' },
   unblock: { id: 'account.unblock_short', defaultMessage: 'Unblock' },
   unmute: { id: 'account.unmute_short', defaultMessage: 'Unmute' },
@@ -69,6 +73,22 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
     }
   },
 
+  onSubscribe(account) {
+    if (account.getIn(['relationship', 'subscribing'])) {
+      if (unsubscribeModal) {
+        dispatch(openModal('CONFIRM', {
+          message: <FormattedMessage id='confirmations.unsubscribe.message' defaultMessage='Are you sure you want to unsubscribe {name}?' values={{ name: <strong>@{account.get('acct')}</strong> }} />,
+          confirm: intl.formatMessage(messages.unsubscribeConfirm),
+          onConfirm: () => dispatch(unsubscribeAccount(account.get('id'))),
+        }));
+      } else {
+        dispatch(unsubscribeAccount(account.get('id')));
+      }
+    } else {
+      dispatch(subscribeAccount(account.get('id')));
+    }
+  },
+
   onBlock(account) {
     if (account.getIn(['relationship', 'blocking'])) {
       dispatch(unblockAccount(account.get('id')));
@@ -92,6 +112,7 @@ class AccountCard extends ImmutablePureComponent {
     account: ImmutablePropTypes.map.isRequired,
     intl: PropTypes.object.isRequired,
     onFollow: PropTypes.func.isRequired,
+    onSubscribe: PropTypes.func.isRequired,
     onBlock: PropTypes.func.isRequired,
     onMute: PropTypes.func.isRequired,
   };
@@ -125,6 +146,10 @@ class AccountCard extends ImmutablePureComponent {
   handleFollow = () => {
     this.props.onFollow(this.props.account);
   };
+
+  handleSubscribe = () => {
+    this.props.onSubscribe(this.props.account);
+  }
 
   handleBlock = () => {
     this.props.onBlock(this.props.account);

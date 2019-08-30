@@ -16,7 +16,7 @@ class FanOutOnWriteService < BaseService
     check_race_condition!
 
     fan_out_to_local_recipients!
-    fan_out_to_public_recipients! if broadcastable?
+    fan_out_to_subscribe_recipients! if subscribable?
     fan_out_to_public_streams! if broadcastable?
   end
 
@@ -51,8 +51,14 @@ class FanOutOnWriteService < BaseService
     end
   end
 
-  def fan_out_to_public_recipients!
+  def fan_out_to_subscribe_recipients!
+    deliver_to_subscribers! if @status.public_visibility?
+    deliver_to_domain_subscribers!
+
+    return if @status.reblog?
+
     deliver_to_hashtag_followers!
+    deliver_to_keyword_subscribers!
   end
 
   def fan_out_to_public_streams!
@@ -89,10 +95,114 @@ class FanOutOnWriteService < BaseService
   end
 
   def deliver_to_hashtag_followers!
-    TagFollow.where(tag_id: @status.tags.map(&:id)).select(:id, :account_id).reorder(nil).find_in_batches do |follows|
+    deliver_to_hashtag_followers_home!
+    deliver_to_hashtag_followers_list!
+  end
+
+  def deliver_to_hashtag_followers_home!
+    scope = FollowTag.home.where(tag_id: @status.tags.map(&:id))
+    scope = scope.joins(:account).merge(@account.followers_for_local_distribution) if needs_following?
+
+    scope.select(:id, :account_id).reorder(nil).find_in_batches do |follows|
       FeedInsertWorker.push_bulk(follows) do |follow|
-        [@status.id, follow.account_id, 'tags', { 'update' => update? }]
+        [@status.id, follow.account_id, 'subscribes', { 'update' => update? }]
       end
+    end
+  end
+
+  def deliver_to_hashtag_followers_list!
+    scope = FollowTag.list.where(tag_id: @status.tags.map(&:id))
+    scope = scope.joins(:list).merge(List.joins(:account).merge(@account.followers_for_local_distribution)) if needs_following?
+
+    scope.select(:id, :list_id).reorder(nil).find_in_batches do |follows|
+      FeedInsertWorker.push_bulk(follows) do |follow|
+        [@status.id, follow.list_id, 'subscribes_list', { 'update' => update? }]
+      end
+    end
+  end
+
+  def deliver_to_subscribers!
+    deliver_to_subscribers_home!
+    deliver_to_subscribers_lists!
+  end
+
+  def deliver_to_subscribers_home!
+    @account.subscribers_for_local_distribution.with_reblog(@status.reblog?).select(:id, :account_id).reorder(nil).find_in_batches do |subscribings|
+      FeedInsertWorker.push_bulk(subscribings) do |subscribing|
+        [@status.id, subscribing.account_id, 'home', { 'update' => update? }]
+      end
+    end
+  end
+
+  def deliver_to_subscribers_lists!
+    @account.list_subscribers_for_local_distribution.with_reblog(@status.reblog?).select(:id, :account_id).reorder(nil).find_in_batches do |subscribings|
+      FeedInsertWorker.push_bulk(subscribings) do |subscribing|
+        [@status.id, subscribing.list_id, 'list', { 'update' => update? }]
+      end
+    end
+  end
+
+  def deliver_to_domain_subscribers!
+    deliver_to_domain_subscribers_home!
+    deliver_to_domain_subscribers_list!
+  end
+
+  def deliver_to_domain_subscribers_home!
+    scope = DomainSubscribe.domain_to_home(@account.domain).with_reblog(@status.reblog?)
+    scope = scope.joins(:account).merge(@account.followers_for_local_distribution) if needs_following?
+
+    scope.select(:id, :account_id).find_in_batches do |subscribes|
+      FeedInsertWorker.push_bulk(subscribes) do |subscribe|
+        [@status.id, subscribe.account_id, 'subscribes', { 'update' => update? }]
+      end
+    end
+  end
+
+  def deliver_to_domain_subscribers_list!
+    scope = DomainSubscribe.domain_to_list(@account.domain).with_reblog(@status.reblog?)
+    scope = scope.joins(:account).merge(@account.followers_for_local_distribution) if needs_following?
+
+    scope.select(:id, :list_id).find_in_batches do |subscribes|
+      FeedInsertWorker.push_bulk(subscribes) do |subscribe|
+        [@status.id, subscribe.list_id, 'subscribes_list', { 'update' => update? }]
+      end
+    end
+  end
+
+  def deliver_to_keyword_subscribers!
+    deliver_to_keyword_subscribers_home!
+    deliver_to_keyword_subscribers_list!
+  end
+
+  def deliver_to_keyword_subscribers_home!
+    match_accounts = []
+
+    scope = KeywordSubscribe.active.without_local_followed_home(@account)
+    scope = scope.joins(:account).merge(@account.followers_for_local_distribution) if needs_following?
+
+    scope.order(:account_id).each do |keyword_subscribe|
+      next if match_accounts[-1] == keyword_subscribe.account_id
+      match_accounts << keyword_subscribe.account_id if keyword_subscribe.match?(@status.searchable_text)
+    end
+
+    FeedInsertWorker.push_bulk(match_accounts) do |match_account|
+      [@status.id, match_account, 'subscribes', { 'update' => update? }]
+    end
+  end
+
+  def deliver_to_keyword_subscribers_list!
+    match_lists = []
+
+    scope = KeywordSubscribe.active.without_local_followed_list(@account)
+    scope = scope.joins(:account).merge(@account.followers_for_local_distribution) if needs_following?
+
+    scope.order(:list_id).each do |keyword_subscribe|
+      next if match_lists[-1] == keyword_subscribe.list_id
+      match_lists << keyword_subscribe.list_id if keyword_subscribe.match?(@status.searchable_text)
+    end
+
+    FeedInsertWorker.push_bulk(match_lists) do |match_list|
+      [@status.id, match_list, 'subscribes_list', { 'update' => update? }]
     end
   end
 
@@ -144,6 +254,14 @@ class FanOutOnWriteService < BaseService
 
   def update?
     @options[:update]
+  end
+
+  def subscribable?
+    [:public, :unlisted, :private].include?(@status.visibility.to_sym)
+  end
+
+  def needs_following?
+    [:unlisted, :private].include?(@status.visibility.to_sym) || @account.silenced?
   end
 
   def broadcastable?

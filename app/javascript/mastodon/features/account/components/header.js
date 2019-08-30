@@ -19,6 +19,8 @@ import { PERMISSION_MANAGE_USERS } from 'mastodon/permissions';
 const messages = defineMessages({
   unfollow: { id: 'account.unfollow', defaultMessage: 'Unfollow' },
   follow: { id: 'account.follow', defaultMessage: 'Follow' },
+  unsubscribe: { id: 'account.unsubscribe', defaultMessage: 'Unsubscribe' },
+  subscribe: { id: 'account.subscribe', defaultMessage: 'Subscribe' },
   cancel_follow_request: { id: 'account.cancel_follow_request', defaultMessage: 'Cancel follow request' },
   requested: { id: 'account.requested', defaultMessage: 'Awaiting approval. Click to cancel follow request' },
   unblock: { id: 'account.unblock', defaultMessage: 'Unblock @{name}' },
@@ -73,6 +75,7 @@ class Header extends ImmutablePureComponent {
     account: ImmutablePropTypes.map,
     identity_props: ImmutablePropTypes.list,
     onFollow: PropTypes.func.isRequired,
+    onSubscribe: PropTypes.func.isRequired,
     onBlock: PropTypes.func.isRequired,
     onMention: PropTypes.func.isRequired,
     onDirect: PropTypes.func.isRequired,
@@ -266,6 +269,22 @@ class Header extends ImmutablePureComponent {
       badge = null;
     }
 
+    const following   = account.getIn(['relationship', 'following']);
+    const subscribing = account.getIn(['relationship', 'subscribing']);
+    const blockd_by   = account.getIn(['relationship', 'blocked_by']);
+    let buttons;
+
+    if(me !== account.get('id') && !blockd_by) {
+      let following_buttons, subscribing_buttons;
+      if(!account.get('moved') || subscribing) {
+        subscribing_buttons = <IconButton icon='rss-square' title={intl.formatMessage(subscribing ? messages.unsubscribe : messages.subscribe)} onClick={this.props.onSubscribe} active={subscribing} />;
+      }
+      if(!account.get('moved') || following) {
+        following_buttons = <IconButton icon={following ? 'user-times' : 'user-plus'} title={intl.formatMessage(following ? messages.unfollow : messages.follow)} onClick={this.props.onFollow} active={following} />;
+      }
+      buttons = <span>{subscribing_buttons}{following_buttons}</span>
+    }
+
     return (
       <div className={classNames('account__header', { inactive: !!account.get('moved') })} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
         <div className='account__header__image'>
@@ -303,6 +322,9 @@ class Header extends ImmutablePureComponent {
               <span dangerouslySetInnerHTML={displayNameHtml} /> {badge}
               <small>@{acct} {lockedIcon}</small>
             </h1>
+            <div className='account__header__tabs__name__relationship account__relationship'>
+              {buttons}
+            </div>
           </div>
 
           {!(suspended || hidden) && (
@@ -350,6 +372,15 @@ class Header extends ImmutablePureComponent {
                     renderer={counterRenderer('followers')}
                   />
                 </NavLink>
+
+                { (me === account.get('id')) && (
+                  <NavLink exact activeClassName='active' to={`/@${account.get('acct')}/subscribing`} title={intl.formatNumber(account.get('subscribing_count'))}>
+                    <ShortNumber
+                      value={account.get('subscribing_count')}
+                      renderer={counterRenderer('subscribing')}
+                    />
+                  </NavLink>
+                )}
               </div>
             </div>
           )}

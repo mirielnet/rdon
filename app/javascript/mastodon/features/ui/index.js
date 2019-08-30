@@ -34,6 +34,7 @@ import {
   HomeTimeline,
   Followers,
   Following,
+  Subscribing,
   Reblogs,
   Favourites,
   DirectTimeline,
@@ -175,6 +176,7 @@ class SwitchingColumnsArea extends React.PureComponent {
           <WrappedRoute path={['/@:acct/with_replies', '/accounts/:id/with_replies']} component={AccountTimeline} content={children} componentParams={{ withReplies: true }} />
           <WrappedRoute path={['/@:acct/followers', '/accounts/:id/followers']} component={Followers} content={children} />
           <WrappedRoute path={['/@:acct/following', '/accounts/:id/following']} component={Following} content={children} />
+          <WrappedRoute path={['/@:acct/subscribing', '/accounts/:id/subscribing']} component={Subscribing} content={children} />
           <WrappedRoute path={['/@:acct/media', '/accounts/:id/media']} component={AccountGallery} content={children} />
           <WrappedRoute path='/@:acct/:statusId' exact component={Status} content={children} />
           <WrappedRoute path='/@:acct/:statusId/reblogs' component={Reblogs} content={children} />

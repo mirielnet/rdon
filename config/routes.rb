@@ -162,6 +162,10 @@ Rails.application.routes.draw do
     resources :sessions, only: [:destroy]
     resources :featured_tags, only: [:index, :create, :destroy]
     resources :favourite_tags, only: [:index, :create, :destroy]
+    resources :follow_tags, except: [:show]
+    resources :account_subscribes, except: [:show]
+    resources :domain_subscribes, except: [:show]
+    resources :keyword_subscribes, except: [:show]
     resources :login_activities, only: [:index]
   end
 
@@ -515,6 +519,7 @@ Rails.application.routes.draw do
         resource :lookup, only: :show, controller: :lookup
         resources :relationships, only: :index
         resources :familiar_followers, only: :index
+        resources :subscribing, only: :index, controller: 'subscribing_accounts'
       end
 
       resources :accounts, only: [:create, :show] do
@@ -529,6 +534,8 @@ Rails.application.routes.draw do
           post :follow
           post :unfollow
           post :remove_from_followers
+          post :subscribe
+          post :unsubscribe
           post :block
           post :unblock
           post :mute
@@ -561,6 +568,9 @@ Rails.application.routes.draw do
 
       resources :featured_tags, only: [:index, :create, :destroy]
       resources :favourite_tags, only: [:index]
+      resources :follow_tags, only: [:index, :create, :show, :update, :destroy]
+      resources :domain_subscribes, only: [:index, :create, :show, :update, :destroy]
+      resources :keyword_subscribes, only: [:index, :create, :show, :update, :destroy]
 
       resources :polls, only: [:create, :show] do
         resources :votes, only: :create, controller: 'polls/votes'

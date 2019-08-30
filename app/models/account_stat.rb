@@ -8,6 +8,7 @@
 #  statuses_count  :bigint(8)        default(0), not null
 #  following_count :bigint(8)        default(0), not null
 #  followers_count :bigint(8)        default(0), not null
+#  subscribing_count :bigint(8)        default(0), not null
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #  last_status_at  :datetime
@@ -27,6 +28,10 @@ class AccountStat < ApplicationRecord
 
   def followers_count
     [attributes['followers_count'], 0].max
+  end
+
+  def subscribing_count
+    [attributes['subscribing_count'], 0].max
   end
 
   def statuses_count

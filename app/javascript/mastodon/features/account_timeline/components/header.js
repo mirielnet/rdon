@@ -12,6 +12,7 @@ export default class Header extends ImmutablePureComponent {
   static propTypes = {
     account: ImmutablePropTypes.map,
     onFollow: PropTypes.func.isRequired,
+    onSubscribe: PropTypes.func.isRequired,
     onBlock: PropTypes.func.isRequired,
     onMention: PropTypes.func.isRequired,
     onDirect: PropTypes.func.isRequired,
@@ -33,6 +34,10 @@ export default class Header extends ImmutablePureComponent {
 
   handleFollow = () => {
     this.props.onFollow(this.props.account);
+  }
+
+  handleSubscribe = () => {
+    this.props.onSubscribe(this.props.account);
   }
 
   handleBlock = () => {
@@ -105,6 +110,7 @@ export default class Header extends ImmutablePureComponent {
         <InnerHeader
           account={account}
           onFollow={this.handleFollow}
+          onSubscribe={this.handleSubscribe}
           onBlock={this.handleBlock}
           onMention={this.handleMention}
           onDirect={this.handleDirect}

@@ -7099,6 +7099,7 @@ noscript {
 
     &__name {
       padding: 5px 10px;
+      display: flex;
 
       .account-role {
         vertical-align: top;
@@ -7117,6 +7118,7 @@ noscript {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+        flex: 1 1 auto;
 
         small {
           display: block;
@@ -7126,6 +7128,9 @@ noscript {
           overflow: hidden;
           text-overflow: ellipsis;
         }
+      }
+      &__relationship {
+        flex: 0 0 auto;
       }
     }
 
