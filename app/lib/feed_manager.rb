@@ -83,7 +83,7 @@ class FeedManager
     end
   end
 
-  def merge_into_timeline(from_account, into_account)
+  def merge_into_timeline(from_account, into_account, public_only = false)
     timeline_key = key(:home, into_account.id)
     query        = from_account.statuses.limit(FeedManager::MAX_ITEMS / 4)
 
@@ -93,7 +93,7 @@ class FeedManager
     end
 
     query.each do |status|
-      next if status.direct_visibility? || status.limited_visibility? || filter?(:home, status, into_account)
+      next if status.direct_visibility? || status.limited_visibility? || (public_only && status.unlisted_visibility?) || filter?(:home, status, into_account)
       add_to_feed(:home, into_account.id, status, into_account.user&.aggregates_reblogs?)
     end
 
@@ -167,19 +167,28 @@ class FeedManager
 
     return true if blocks_or_mutes?(receiver_id, check_for_blocks, :home)
 
-    if status.reply? && !status.in_reply_to_account_id.nil?                                                                      # Filter out if it's a reply
-      should_filter   = !Follow.where(account_id: receiver_id, target_account_id: status.in_reply_to_account_id).exists?         # and I'm not following the person it's a reply to
-      should_filter &&= receiver_id != status.in_reply_to_account_id                                                             # and it's not a reply to me
-      should_filter &&= status.account_id != status.in_reply_to_account_id                                                       # and it's not a self-reply
-      return should_filter
-    elsif status.reblog?                                                                                                         # Filter out a reblog
+    if status.reblog?                                                                                                            # Filter out a reblog
       should_filter   = Follow.where(account_id: receiver_id, target_account_id: status.account_id, show_reblogs: false).exists? # if the reblogger's reblogs are suppressed
       should_filter ||= Block.where(account_id: status.reblog.account_id, target_account_id: receiver_id).exists?                # or if the author of the reblogged status is blocking me
       should_filter ||= AccountDomainBlock.where(account_id: receiver_id, domain: status.reblog.account.domain).exists?          # or the author's domain is blocked
       return should_filter
-    end
+    else
+      if status.reply? && !status.in_reply_to_account_id.nil?                                                                    # Filter out if it's a reply
+        should_filter   = !Follow.where(account_id: receiver_id, target_account_id: status.in_reply_to_account_id).exists?       # and I'm not following the person it's a reply to
+        should_filter &&= receiver_id != status.in_reply_to_account_id                                                           # and it's not a reply to me
+        should_filter &&= status.account_id != status.in_reply_to_account_id                                                     # and it's not a self-reply
+        should_filter &&= !FollowTag.where(tag: status.tags).where(account_id: receiver_id).exists?                              # and It's not follow tag
+        should_filter &&= !KeywordSubscribe.match?(status.index_text, account_id: receiver_id)                                   # and It's not subscribe keywords
+        should_filter &&= !DomainSubscribe.where(domain: status.account.domain, account_id: receiver_id, list_id: nil).exists?   # and It's not domain subscribes
+        return true if should_filter
+      end
 
-    false
+      should_filter   = !Follow.where(account_id: receiver_id, target_account_id: status.account_id).exists?
+      should_filter &&= !AccountSubscribe.where(account_id: receiver_id, target_account_id: status.account_id).exists?
+      should_filter &&= AccountDomainBlock.where(account_id: receiver_id, domain: status.account.domain).exists?
+      should_filter &&= !KeywordSubscribe.match?(status.index_text, account_id: receiver_id, as_ignore_block: true)
+      return should_filter
+    end
   end
 
   def filter_from_mentions?(status, receiver_id)
