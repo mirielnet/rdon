@@ -26,6 +26,8 @@ import {
   revealStatus,
   toggleStatusCollapse,
   editStatus,
+  hideQuote,
+  revealQuote,
 } from '../actions/statuses';
 import {
   unmuteAccount,
@@ -230,6 +232,14 @@ const mapDispatchToProps = (dispatch, { intl, contextType }) => ({
 
   deployPictureInPicture (status, type, mediaProps) {
     dispatch(deployPictureInPicture(status.get('id'), status.getIn(['account', 'id']), type, mediaProps));
+  },
+
+  onQuoteToggleHidden (status) {
+    if (status.get('quote_hidden')) {
+      dispatch(revealQuote(status.get('id')));
+    } else {
+      dispatch(hideQuote(status.get('id')));
+    }
   },
 
 });
