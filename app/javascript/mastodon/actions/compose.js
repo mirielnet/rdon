@@ -99,16 +99,14 @@ export function cancelReplyCompose() {
   };
 };
 
-export function quoteCompose(status, router) {
+export function quoteCompose(status, routerHistory) {
   return (dispatch, getState) => {
     dispatch({
       type: COMPOSE_QUOTE,
       status: status,
     });
 
-    if (!getState().getIn(['compose', 'mounted'])) {
-      router.push('/statuses/new');
-    }
+    ensureComposeIsVisible(getState, routerHistory);
   };
 };
 
@@ -149,8 +147,7 @@ export function directCompose(account, routerHistory) {
 export function submitCompose(routerHistory, primary) {
   return function (dispatch, getState) {
     const rawStatus = getState().getIn(['compose', 'text'], '');
-    const media     = getState().getIn(['compose', 'media_attachments']);
-    const quoteId   = getState().getIn(['compose', 'quote_from'], null);
+    const media  = getState().getIn(['compose', 'media_attachments']);
 
     if ((!rawStatus || !rawStatus.length) && media.size === 0) {
       return;
@@ -163,14 +160,6 @@ export function submitCompose(routerHistory, primary) {
       getState().getIn(['compose', 'in_reply_to']),
     );
 
-    if (quoteId) {
-      status = [
-        status,
-        "~~~~~~~~~~",
-        `[${quoteId}][${getState().getIn(['compose', 'quote_from_uri'], null)}]`
-      ].join("\n");
-    }
-
     dispatch(submitComposeRequest());
 
     api(getState).post('/api/v1/statuses', {
@@ -181,6 +170,7 @@ export function submitCompose(routerHistory, primary) {
       spoiler_text: getState().getIn(['compose', 'spoiler']) ? getState().getIn(['compose', 'spoiler_text'], '') : '',
       visibility: visibility,
       poll: getState().getIn(['compose', 'poll'], null),
+      quote_id: getState().getIn(['compose', 'quote_from'], null),
     }, {
       headers: {
         'Idempotency-Key': getState().getIn(['compose', 'idempotencyKey']),
