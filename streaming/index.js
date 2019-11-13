@@ -535,6 +535,19 @@ const startWorker = (workerId) => {
     streamFrom(channel, req, streamToHttp(req, res), streamHttpEnd(req), true);
   });
 
+  app.get('/api/v1/streaming/public/domain', (req, res) => {
+    const onlyMedia  = req.query.only_media === '1' || req.query.only_media === 'true';
+    const channel    = onlyMedia ? 'timeline:public:domain:media' : 'timeline:public:domain';
+    const { domain } = req.query;
+
+    if (!domain || domain.length === 0) {
+      httpNotFound(res);
+      return;
+    }
+
+    streamFrom(`${channel}:${domain.toLowerCase()}`, req, streamToHttp(req, res), streamHttpEnd(req), true);
+  });
+
   app.get('/api/v1/streaming/direct', (req, res) => {
     const channel = `timeline:direct:${req.accountId}`;
     streamFrom(channel, req, streamToHttp(req, res), streamHttpEnd(req, subscriptionHeartbeat(channel)), true);
@@ -599,11 +612,27 @@ const startWorker = (workerId) => {
     case 'public:local':
       streamFrom('timeline:public:local', req, streamToWs(req, ws), streamWsEnd(req, ws), true);
       break;
+    case 'public:domain':
+      if (!location.query.domain || location.query.domain.length === 0) {
+        ws.close();
+        return;
+      }
+
+      streamFrom(`timeline:public:domain:${location.query.domain.toLowerCase()}`, req, streamToWs(req, ws), streamWsEnd(req, ws), true);
+      break;
     case 'public:media':
       streamFrom('timeline:public:media', req, streamToWs(req, ws), streamWsEnd(req, ws), true);
       break;
     case 'public:local:media':
       streamFrom('timeline:public:local:media', req, streamToWs(req, ws), streamWsEnd(req, ws), true);
+      break;
+    case 'public:domain:media':
+      if (!location.query.domain || location.query.domain.length === 0) {
+        ws.close();
+        return;
+      }
+
+      streamFrom(`timeline:public:domain:media:${location.query.domain.toLowerCase()}`, req, streamToWs(req, ws), streamWsEnd(req, ws), true);
       break;
     case 'direct':
       channel = `timeline:direct:${req.accountId}`;

@@ -39,7 +39,16 @@ class Api::V1::Timelines::PublicController < Api::BaseController
   end
 
   def public_timeline_statuses
-    Status.as_public_timeline(current_account, truthy_param?(:local))
+    scope = case
+            when params[:domain].present?
+              params[:domain]
+            when truthy_param?(:local)
+              :local
+            else
+              :all
+            end
+
+    Status.as_public_timeline(current_account, scope)
   end
 
   def insert_pagination_headers
@@ -47,7 +56,7 @@ class Api::V1::Timelines::PublicController < Api::BaseController
   end
 
   def pagination_params(core_params)
-    params.slice(:local, :limit, :only_media).permit(:local, :limit, :only_media).merge(core_params)
+    params.slice(:local, :domain, :limit, :only_media).permit(:local, :domain, :limit, :only_media).merge(core_params)
   end
 
   def next_path

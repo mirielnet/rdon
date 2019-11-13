@@ -404,8 +404,17 @@ class Status < ApplicationRecord
 
     private
 
-    def timeline_scope(local_only = false)
-      starting_scope = local_only ? Status.local : Status
+    def timeline_scope(scope = false)
+      starting_scope = case scope
+                       when :all, false
+                         Status
+                       when :local, true
+                         Status.local
+                       else
+                         Status.includes(:account)
+                           .where(accounts: {domain: scope}).select('statuses.*, accounts.*')
+                       end
+
       starting_scope
         .with_public_visibility
         .without_reblogs
