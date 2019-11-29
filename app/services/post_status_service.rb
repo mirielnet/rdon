@@ -30,8 +30,8 @@ class PostStatusService < BaseService
     return idempotency_duplicate if idempotency_given? && idempotency_duplicate?
 
     validate_media!
-    preprocess_quote!
     preprocess_attributes!
+    preprocess_quote!
 
     if scheduled?
       schedule_status!
@@ -48,12 +48,29 @@ class PostStatusService < BaseService
 
   private
 
+  def status_from_uri(uri)
+    ActivityPub::TagManager.instance.uri_to_resource(uri, Status)
+  end
+
+  def quote_from_url(url)
+    return nil if url.nil?
+
+    quote = ResolveURLService.new.call(url)
+    status_from_uri(quote.uri) if quote
+  rescue
+    nil
+  end
+
   def preprocess_attributes!
     @text         = @options.delete(:spoiler_text) if @text.blank? && @options[:spoiler_text].present?
     @visibility   = @options[:visibility] || @account.user&.setting_default_privacy
     @visibility   = :unlisted if @visibility == :public && @account.silenced?
     @scheduled_at = @options[:scheduled_at]&.to_datetime
     @scheduled_at = nil if scheduled_in_the_past?
+    if @quote_id.nil? && md = @text.match(/QT:\s*\[\s*(https:\/\/.+?)\s*\]/)
+      @quote_id = quote_from_url(md[1])&.id
+      @text.sub!(/QT:\s*\[.*?\]/, '')
+    end
   rescue ArgumentError
     raise ActiveRecord::RecordInvalid
   end
