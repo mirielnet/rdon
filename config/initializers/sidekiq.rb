@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'sidekiq/worker_killer'
+
 namespace    = ENV.fetch('REDIS_NAMESPACE') { nil }
 redis_params = { url: ENV['REDIS_URL'], driver: :hiredis }
 
@@ -16,6 +18,7 @@ Sidekiq.configure_server do |config|
 
   config.server_middleware do |chain|
     chain.add SidekiqUniqueJobs::Middleware::Server
+    chain.add Sidekiq::WorkerKiller, max_rss: 750, grace_time: 60
   end
 
   config.client_middleware do |chain|
