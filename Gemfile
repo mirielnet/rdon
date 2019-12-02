@@ -106,6 +106,9 @@ gem 'json-ld'
 gem 'json-ld-preloaded', '~> 3.1'
 gem 'rdf-normalize', '~> 0.4'
 
+gem 'puma_worker_killer', '~> 0.3'
+gem 'sidekiq-worker-killer', '~> 1.0'
+
 group :development, :test do
   gem 'fabrication', '~> 2.21'
   gem 'fuubar', '~> 2.5'
