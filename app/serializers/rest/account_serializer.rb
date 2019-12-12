@@ -5,7 +5,7 @@ class REST::AccountSerializer < ActiveModel::Serializer
 
   attributes :id, :username, :acct, :display_name, :locked, :bot, :discoverable, :group, :created_at,
              :note, :url, :avatar, :avatar_static, :header, :header_static,
-             :followers_count, :following_count, :statuses_count, :last_status_at
+             :followers_count, :following_count, :subscribing_count, :statuses_count, :last_status_at
 
   attribute :mute_expires_at, if: :current_user?
 
