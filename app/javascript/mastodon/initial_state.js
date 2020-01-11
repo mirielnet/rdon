@@ -28,5 +28,7 @@ export const cropImages = getMeta('crop_images');
 export const disableSwiping = getMeta('disable_swiping');
 export const languages = initialState && initialState.languages;
 export const show_quote_button = getMeta('show_quote_button');
+export const show_follow_button_on_timeline = getMeta('show_follow_button_on_timeline');
+export const show_subscribe_button_on_timeline = getMeta('show_subscribe_button_on_timeline');
 
 export default initialState;

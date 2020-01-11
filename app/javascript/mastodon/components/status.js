@@ -8,6 +8,7 @@ import RelativeTimestamp from './relative_timestamp';
 import DisplayName from './display_name';
 import StatusContent from './status_content';
 import StatusActionBar from './status_action_bar';
+import AccountActionBar from './account_action_bar';
 import AttachmentList from './attachment_list';
 import Card from '../features/status/components/card';
 import { injectIntl, defineMessages, FormattedMessage } from 'react-intl';
@@ -112,6 +113,8 @@ class Status extends ImmutablePureComponent {
     onHeightChange: PropTypes.func,
     onToggleHidden: PropTypes.func,
     onToggleCollapsed: PropTypes.func,
+    onFollow: PropTypes.func.isRequired,
+    onSubscribe: PropTypes.func.isRequired,
     muted: PropTypes.bool,
     hidden: PropTypes.bool,
     unread: PropTypes.bool,
@@ -367,6 +370,14 @@ class Status extends ImmutablePureComponent {
 
   handleRef = c => {
     this.node = c;
+  }
+
+  handleFollow = () => {
+    this.props.onFollow(this._properStatus().get('account'));
+  }
+
+  handleSubscribe = () => {
+    this.props.onSubscribe(this._properStatus().get('account'));
   }
 
   render () {
@@ -691,8 +702,8 @@ class Status extends ImmutablePureComponent {
           {prepend}
 
           <div className={classNames('status', `status-${status.get('visibility')}`, { 'status-reply': !!status.get('in_reply_to_id'), muted: this.props.muted })} data-id={status.get('id')}>
+            <AccountActionBar account={status.get('account')} {...other} />
             <div className='status__expand' onClick={this.handleClick} role='presentation' />
-
             <div className='status__info'>
               <a onClick={this.handleClick} href={status.get('url')} className='status__relative-time' target='_blank' rel='noopener noreferrer'>
                 <span className='status__visibility-icon'><Icon id={visibilityIcon.icon} title={visibilityIcon.text} /></span>

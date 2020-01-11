@@ -39,6 +39,8 @@ defaults: &defaults
   trendable_by_default: false
   crop_images: true
   show_quote_button: true
+  show_follow_button_on_timeline: false
+  show_subscribe_button_on_timeline: false
   notification_emails:
     follow: true
     reblog: false
