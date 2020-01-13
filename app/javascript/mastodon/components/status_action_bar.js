@@ -6,7 +6,7 @@ import IconButton from './icon_button';
 import DropdownMenuContainer from '../containers/dropdown_menu_container';
 import { defineMessages, injectIntl } from 'react-intl';
 import ImmutablePureComponent from 'react-immutable-pure-component';
-import { me, isStaff } from '../initial_state';
+import { me, isStaff, show_bookmark_button } from '../initial_state';
 import classNames from 'classnames';
 
 const messages = defineMessages({
@@ -240,13 +240,17 @@ class StatusActionBar extends ImmutablePureComponent {
 
     menu.push(null);
 
-    menu.push({ text: intl.formatMessage(status.get('bookmarked') ? messages.removeBookmark : messages.bookmark), action: this.handleBookmarkClick });
+    if (!show_bookmark_button) {
+      menu.push({ text: intl.formatMessage(status.get('bookmarked') ? messages.removeBookmark : messages.bookmark), action: this.handleBookmarkClick });
+    }
 
     if (writtenByMe && publicStatus) {
       menu.push({ text: intl.formatMessage(status.get('pinned') ? messages.unpin : messages.pin), action: this.handlePinClick });
     }
 
-    menu.push(null);
+    if (!show_bookmark_button || writtenByMe && publicStatus) {
+      menu.push(null);
+    }
 
     if (writtenByMe || withDismiss) {
       menu.push({ text: intl.formatMessage(mutingConversation ? messages.unmuteConversation : messages.muteConversation), action: this.handleConversationMuteClick });
@@ -328,6 +332,7 @@ class StatusActionBar extends ImmutablePureComponent {
         <IconButton className='status__action-bar-button star-icon' animate active={status.get('favourited')} pressed={status.get('favourited')} title={intl.formatMessage(messages.favourite)} icon='star' onClick={this.handleFavouriteClick} />
 
         {shareButton}
+        {show_bookmark_button && <IconButton className='status__action-bar-button bookmark-icon' active={status.get('bookmarked')} pressed={status.get('bookmarked')} title={intl.formatMessage(status.get('bookmarked') ? messages.removeBookmark : messages.bookmark)} icon='bookmark' onClick={this.handleBookmarkClick} />}
 
         <div className='status__action-bar-dropdown'>
           <DropdownMenuContainer
