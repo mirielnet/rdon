@@ -42,7 +42,7 @@ class Api::V1::Timelines::PublicController < Api::BaseController
     if truthy_param?(:remote)
       Status.as_public_timeline(current_account, :remote)
     elsif truthy_param?(:local)
-      Status.as_tag_timeline(Rails.configuration.x.default_hashtag_id, current_account, false)
+      Status.as_tag_timeline(Rails.configuration.x.default_hashtag_id, params.slice(:max_id, :since_id, :min_id), current_account, false)
     else
       Status.as_public_timeline(current_account, false)
     end
