@@ -99,7 +99,7 @@ class RemoveStatusService < BaseService
   end
 
   def remove_from_remote_followers
-    ActivityPub::DeliveryWorker.push_bulk(@account.followers.inboxes) do |inbox_url|
+    ActivityPub::DeliveryWorker.push_bulk(@account.delivery_followers.inboxes) do |inbox_url|
       [signed_activity_json, @account.id, inbox_url]
     end
 
