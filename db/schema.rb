@@ -494,6 +494,7 @@ ActiveRecord::Schema.define(version: 2022_08_24_164532) do
     t.boolean "show_reblogs", default: true, null: false
     t.string "uri"
     t.boolean "notify", default: false, null: false
+    t.boolean "delivery", default: true, null: false
     t.index ["account_id", "target_account_id"], name: "index_follow_requests_on_account_id_and_target_account_id", unique: true
   end
 
@@ -517,6 +518,7 @@ ActiveRecord::Schema.define(version: 2022_08_24_164532) do
     t.string "uri"
     t.boolean "notify", default: false, null: false
     t.boolean "private", default: true, null: false
+    t.boolean "delivery", default: true, null: false
     t.index ["account_id", "target_account_id"], name: "index_follows_on_account_id_and_target_account_id", unique: true
     t.index ["target_account_id"], name: "index_follows_on_target_account_id"
   end

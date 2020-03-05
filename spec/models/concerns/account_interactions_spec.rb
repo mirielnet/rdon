@@ -12,9 +12,30 @@ describe AccountInteractions do
     subject { Account.following_map(target_account_ids, account_id) }
 
     context 'account with Follow' do
-      it 'returns { target_account_id => true }' do
+      it 'returns { target_account_id => { reblogs: true, notify: false, delivery: true } }' do
         Fabricate(:follow, account: account, target_account: target_account)
-        is_expected.to eq(target_account_id => { reblogs: true, notify: false })
+        is_expected.to eq(target_account_id => { reblogs: true, notify: false, delivery: true })
+      end
+    end
+
+    context 'account with Follow, without reblog' do
+      it 'returns { target_account_id => { reblogs: false, notify: false, delivery: true } }' do
+        Fabricate(:follow, account: account, target_account: target_account, show_reblogs: false)
+        is_expected.to eq(target_account_id => { reblogs: false, notify: false, delivery: true })
+      end
+    end
+
+    context 'account with Follow, notify' do
+      it 'returns { target_account_id => { reblogs: true, notify: true, delivery: true } }' do
+        Fabricate(:follow, account: account, target_account: target_account, notify: true)
+        is_expected.to eq(target_account_id => { reblogs: true, notify: true, delivery: true })
+      end
+    end
+
+    context 'account with Follow, without delivery' do
+      it 'returns { target_account_id => { reblogs: true, notify: false, delivery: false } }' do
+        Fabricate(:follow, account: account, target_account: target_account, delivery: false)
+        is_expected.to eq(target_account_id => { reblogs: true, notify: false, delivery: false })
       end
     end
 
@@ -29,9 +50,16 @@ describe AccountInteractions do
     subject { Account.followed_by_map(target_account_ids, account_id) }
 
     context 'account with Follow' do
-      it 'returns { target_account_id => true }' do
+      it 'returns { target_account_id => { delivery: true} }' do
         Fabricate(:follow, account: target_account, target_account: account)
-        is_expected.to eq(target_account_id => true)
+        is_expected.to eq(target_account_id => { delivery: true})
+      end
+    end
+
+    context 'account with Follow, without delivery' do
+      it 'returns { target_account_id => { delivery: false} }' do
+        Fabricate(:follow, account: target_account, target_account: account, delivery: false)
+        is_expected.to eq(target_account_id => { delivery: false})
       end
     end
 

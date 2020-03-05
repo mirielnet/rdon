@@ -26,7 +26,7 @@ class REST::RelationshipSerializer < ActiveModel::Serializer
   end
 
   def followed_by
-    instance_options[:relationships].followed_by[object.id] || false
+    instance_options[:relationships].followed_by[object.id] ? true : false
   end
 
   def subscribing
