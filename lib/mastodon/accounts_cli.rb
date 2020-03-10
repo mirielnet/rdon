@@ -263,6 +263,7 @@ module Mastodon
 
     option :all, type: :boolean
     option :domain
+    option :full, type: :boolean
     option :concurrency, type: :numeric, default: 5, aliases: [:c]
     option :verbose, type: :boolean, aliases: [:v]
     option :dry_run, type: :boolean
@@ -271,6 +272,7 @@ module Mastodon
       Fetch remote user data and files for one or multiple accounts.
 
       With the --all option, all remote accounts will be processed.
+      With the --full option, full information of the remote account will be processed.
       Through the --domain option, this can be narrowed down to a
       specific domain only. Otherwise, a single remote account must
       be specified with USERNAME.
@@ -288,6 +290,9 @@ module Mastodon
           account.reset_avatar!
           account.reset_header!
           account.save
+          if options[:full]
+            ActivityPub::FetchRemoteAccountService.new.call(account.uri)
+          end
         end
 
         say("Refreshed #{processed} accounts#{dry_run}", :green, true)
@@ -304,6 +309,9 @@ module Mastodon
           account.reset_avatar!
           account.reset_header!
           account.save
+          if options[:full]
+            ActivityPub::FetchRemoteAccountService.new.call(account.uri)
+          end
         end
 
         say("OK#{dry_run}", :green)
