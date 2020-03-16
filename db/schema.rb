@@ -898,6 +898,7 @@ ActiveRecord::Schema.define(version: 2020_12_18_054746) do
     t.index ["quote_id"], name: "index_statuses_on_quote_id"
     t.index ["reblog_of_id", "account_id"], name: "index_statuses_on_reblog_of_id_and_account_id"
     t.index ["uri"], name: "index_statuses_on_uri", unique: true
+    t.index ["url"], name: "index_statuses_on_url"
   end
 
   create_table "statuses_tags", id: false, force: :cascade do |t|
