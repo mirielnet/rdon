@@ -479,6 +479,17 @@ ActiveRecord::Schema.define(version: 2021_05_07_001928) do
     t.index ["status_id"], name: "index_favourites_on_status_id"
   end
 
+  create_table "emoji_reactions", force: :cascade do |t|
+    t.bigint "account_id"
+    t.bigint "status_id"
+    t.string "name", default: "", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "status_id", "name"], name: "index_emoji_reactions_on_account_id_and_status_id", unique: true
+    t.index ["account_id"], name: "index_emoji_reactions_on_account_id"
+    t.index ["status_id"], name: "index_emoji_reactions_on_status_id"
+  end
+
   create_table "featured_tags", force: :cascade do |t|
     t.bigint "account_id"
     t.bigint "tag_id"
@@ -1137,6 +1148,8 @@ ActiveRecord::Schema.define(version: 2021_05_07_001928) do
   add_foreign_key "email_domain_blocks", "email_domain_blocks", column: "parent_id", on_delete: :cascade
   add_foreign_key "encrypted_messages", "accounts", column: "from_account_id", on_delete: :cascade
   add_foreign_key "encrypted_messages", "devices", on_delete: :cascade
+  add_foreign_key "emoji_reactions", "accounts", on_delete: :cascade
+  add_foreign_key "emoji_reactions", "statuses", on_delete: :cascade
   add_foreign_key "favourite_domains", "accounts", on_delete: :cascade
   add_foreign_key "favourite_tags", "accounts", on_delete: :cascade
   add_foreign_key "favourite_tags", "tags", on_delete: :cascade
