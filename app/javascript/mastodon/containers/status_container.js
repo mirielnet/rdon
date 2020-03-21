@@ -51,6 +51,7 @@ import { deployPictureInPicture } from '../actions/picture_in_picture';
 import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 import { boostModal, deleteModal, unfollowModal, unsubscribeModal } from '../initial_state';
 import { showAlertForError } from '../actions/alerts';
+import { Map as ImmutableMap } from 'immutable';
 
 const messages = defineMessages({
   deleteConfirm: { id: 'confirmations.delete.confirm', defaultMessage: 'Delete' },
@@ -269,7 +270,7 @@ const mapDispatchToProps = (dispatch, { intl, contextType }) => ({
   },
 
   onSubscribe (account) {
-    if (account.getIn(['relationship', 'subscribing'])) {
+    if (account.getIn(['relationship', 'subscribing', '-1'], new ImmutableMap).size > 0) {
       if (unsubscribeModal) {
         dispatch(openModal('CONFIRM', {
           message: <FormattedMessage id='confirmations.unsubscribe.message' defaultMessage='Are you sure you want to unsubscribe {name}?' values={{ name: <strong>@{account.get('acct')}</strong> }} />,
@@ -283,6 +284,13 @@ const mapDispatchToProps = (dispatch, { intl, contextType }) => ({
       dispatch(subscribeAccount(account.get('id')));
     }
   },
+
+  onAddToList (account){
+    dispatch(openModal('LIST_ADDER', {
+      accountId: account.get('id'),
+    }));
+  },
+
 });
 
 export default injectIntl(connect(makeMapStateToProps, mapDispatchToProps)(Status));

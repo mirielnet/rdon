@@ -138,6 +138,7 @@ class User < ApplicationRecord
            :disable_swiping, :always_send_emails,
            :show_quote_button,
            :show_follow_button_on_timeline, :show_subscribe_button_on_timeline,
+           :show_followed_by, :follow_button_to_list_adder,
            to: :settings, prefix: :setting, allow_nil: false
 
   delegate :can?, to: :role

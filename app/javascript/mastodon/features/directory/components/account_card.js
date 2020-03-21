@@ -9,7 +9,7 @@ import DisplayName from 'mastodon/components/display_name';
 import Permalink from 'mastodon/components/permalink';
 import Button from 'mastodon/components/button';
 import { FormattedMessage, injectIntl, defineMessages } from 'react-intl';
-import { autoPlayGif, me, unfollowModal, unsubscribeModal } from 'mastodon/initial_state';
+import { autoPlayGif, me, unfollowModal, unsubscribeModal, show_followed_by } from 'mastodon/initial_state';
 import ShortNumber from 'mastodon/components/short_number';
 import {
   followAccount,
@@ -21,6 +21,7 @@ import {
 } from 'mastodon/actions/accounts';
 import { openModal } from 'mastodon/actions/modal';
 import classNames from 'classnames';
+import { Map as ImmutableMap } from 'immutable';
 
 const messages = defineMessages({
   unfollow: { id: 'account.unfollow', defaultMessage: 'Unfollow' },
@@ -32,6 +33,7 @@ const messages = defineMessages({
   unblock: { id: 'account.unblock_short', defaultMessage: 'Unblock' },
   unmute: { id: 'account.unmute_short', defaultMessage: 'Unmute' },
   unfollowConfirm: { id: 'confirmations.unfollow.confirm', defaultMessage: 'Unfollow' },
+  unsubscribeConfirm: { id: 'confirmations.unsubscribe.confirm', defaultMessage: 'Unsubscribe' },
   edit_profile: { id: 'account.edit_profile', defaultMessage: 'Edit profile' },
 });
 
@@ -74,7 +76,7 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
   },
 
   onSubscribe(account) {
-    if (account.getIn(['relationship', 'subscribing'])) {
+    if (account.getIn(['relationship', 'subscribing', '-1'], new ImmutableMap).size > 0) {
       if (unsubscribeModal) {
         dispatch(openModal('CONFIRM', {
           message: <FormattedMessage id='confirmations.unsubscribe.message' defaultMessage='Are you sure you want to unsubscribe {name}?' values={{ name: <strong>@{account.get('acct')}</strong> }} />,
@@ -87,6 +89,12 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
     } else {
       dispatch(subscribeAccount(account.get('id')));
     }
+  },
+
+  onAddToList(account){
+    dispatch(openModal('LIST_ADDER', {
+      accountId: account.get('id'),
+    }));
   },
 
   onBlock(account) {
@@ -113,6 +121,7 @@ class AccountCard extends ImmutablePureComponent {
     intl: PropTypes.object.isRequired,
     onFollow: PropTypes.func.isRequired,
     onSubscribe: PropTypes.func.isRequired,
+    onAddToList: PropTypes.func.isRequired,
     onBlock: PropTypes.func.isRequired,
     onMute: PropTypes.func.isRequired,
   };
@@ -143,13 +152,21 @@ class AccountCard extends ImmutablePureComponent {
     }
   }
 
-  handleFollow = () => {
-    this.props.onFollow(this.props.account);
+  handleFollow = (e) => {
+    if ((e && e.shiftKey) || !follow_button_to_list_adder) {
+      this.props.onFollow(this.props.account);
+    } else {
+      this.props.onAddToList(this.props.account);
+    }
   };
 
-  handleSubscribe = () => {
-    this.props.onSubscribe(this.props.account);
-  }
+  handleSubscribe = (e) => {
+    if ((e && e.shiftKey) || !follow_button_to_list_adder) {
+      this.props.onSubscribe(this.props.account);
+    } else {
+      this.props.onAddToList(this.props.account);
+    }
+  };
 
   handleBlock = () => {
     this.props.onBlock(this.props.account);

@@ -249,6 +249,8 @@
   "hashtag.follow": "ハッシュタグをフォローする",
   "hashtag.total_volume": "Total volume in the last {days, plural, one {day} other {{days} days}}",
   "hashtag.unfollow": "ハッシュタグのフォローを解除",
+  "home.account.add": "ホームに追加",
+  "home.account.remove": "ホームから外す",
   "home.column_settings.basic": "基本設定",
   "home.column_settings.show_reblogs": "ブースト表示",
   "home.column_settings.show_replies": "返信表示",

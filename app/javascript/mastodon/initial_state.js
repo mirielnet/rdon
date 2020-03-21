@@ -30,5 +30,7 @@ export const languages = initialState && initialState.languages;
 export const show_quote_button = getMeta('show_quote_button');
 export const show_follow_button_on_timeline = getMeta('show_follow_button_on_timeline');
 export const show_subscribe_button_on_timeline = getMeta('show_subscribe_button_on_timeline');
+export const show_followed_by = getMeta('show_followed_by');
+export const follow_button_to_list_adder = getMeta('follow_button_to_list_adder');
 
 export default initialState;

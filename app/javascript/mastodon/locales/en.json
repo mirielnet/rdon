@@ -249,6 +249,8 @@
   "hashtag.follow": "Follow hashtag",
   "hashtag.total_volume": "Total volume in the last {days, plural, one {day} other {{days} days}}",
   "hashtag.unfollow": "Unfollow hashtag",
+  "home.account.add": "Add to home",
+  "home.account.remove": "Remove from home",
   "home.column_settings.basic": "Basic",
   "home.column_settings.show_reblogs": "Show boosts",
   "home.column_settings.show_replies": "Show replies",

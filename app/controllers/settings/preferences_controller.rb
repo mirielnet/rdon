@@ -59,6 +59,8 @@ class Settings::PreferencesController < Settings::BaseController
       :setting_show_quote_button,
       :setting_show_follow_button_on_timeline,
       :setting_show_subscribe_button_on_timeline,
+      :setting_show_followed_by,
+      :setting_follow_button_to_list_adder,
       notification_emails: %i(follow follow_request reblog favourite mention report pending_account trending_tag appeal),
       interactions: %i(must_be_follower must_be_following must_be_following_dm)
     )

@@ -7,6 +7,8 @@ describe AccountInteractions do
   let(:target_account)     { Fabricate(:account, username: 'target') }
   let(:target_account_id)  { target_account.id }
   let(:target_account_ids) { [target_account_id] }
+  let(:list)               { Fabricate(:list, account_id: account_id) }
+  let(:list_id)            { list.id }
 
   describe '.following_map' do
     subject { Account.following_map(target_account_ids, account_id) }
@@ -64,6 +66,37 @@ describe AccountInteractions do
     end
 
     context 'account without Follow' do
+      it 'returns {}' do
+        is_expected.to eq({})
+      end
+    end
+  end
+
+  describe '.subscribing_map' do
+    subject { Account.subscribing_map(target_account_ids, account_id) }
+
+    context 'account with Subscribe' do
+      it 'returns { target_account_id => { -1: { reblogs: true } }' do
+        Fabricate(:account_subscribe, account: account, target_account: target_account)
+        is_expected.to eq(target_account_id => { -1 => { reblogs: true } })
+      end
+    end
+
+    context 'account with Subscribe, without reblog' do
+      it 'returns { target_account_id => { -1: { reblogs: false } } }' do
+        Fabricate(:account_subscribe, account: account, target_account: target_account, show_reblogs: false)
+        is_expected.to eq(target_account_id => { -1 => { reblogs: false } })
+      end
+    end
+
+    context 'account with Subscribe, into list 1' do
+      it 'returns { target_account_id => { id: { reblogs: true } } }' do
+        Fabricate(:account_subscribe, account: account, target_account: target_account, list: list)
+        is_expected.to eq(target_account_id => { list_id => { reblogs: true } })
+      end
+    end
+
+    context 'account without Subscribe' do
       it 'returns {}' do
         is_expected.to eq({})
       end

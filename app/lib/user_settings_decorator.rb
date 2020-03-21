@@ -43,6 +43,8 @@ class UserSettingsDecorator
     user.settings['show_quote_button']                 = show_quote_button_preference if change?('setting_show_quote_button')
     user.settings['show_follow_button_on_timeline']    = show_follow_button_on_timeline_preference if change?('setting_show_follow_button_on_timeline')
     user.settings['show_subscribe_button_on_timeline'] = show_subscribe_button_on_timeline_preference if change?('setting_show_subscribe_button_on_timeline')
+    user.settings['show_followed_by']                  = show_followed_by_preference if change?('setting_show_followed_by')
+    user.settings['follow_button_to_list_adder']       = follow_button_to_list_adder_preference if change?('setting_follow_button_to_list_adder')
   end
 
   def merged_notification_emails
@@ -155,6 +157,14 @@ class UserSettingsDecorator
 
   def show_subscribe_button_on_timeline_preference
     boolean_cast_setting 'setting_show_subscribe_button_on_timeline'
+  end
+
+  def show_followed_by_preference
+    boolean_cast_setting 'setting_show_followed_by'
+  end
+
+  def follow_button_to_list_adder_preference
+    boolean_cast_setting 'setting_follow_button_to_list_adder'
   end
 
   def boolean_cast_setting(key)
