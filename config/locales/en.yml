@@ -1536,6 +1536,7 @@ en:
     instance-ticker-type-3-contrast: Mastodon instance ticker Type-3 (High contrast / Favicon Images(Black Back) Style)
     instance-ticker-type-3-light: Mastodon instance ticker Type-3 (Light / Favicon Images(Black Back) Style)
     instance-ticker-type-3: Mastodon instance ticker Type-3 (Dark / Favicon Images(Black back) Style)
+    mask: Mastodon (Mask)
     mastodon-light: Mastodon (Light)
     mobile-small: Mobile Small / Mastodon (Dark)
   time:
