@@ -132,7 +132,6 @@ class RemoveStatusService < BaseService
 
     @tags.each do |hashtag|
       redis.publish("timeline:hashtag:#{hashtag.mb_chars.downcase}", @payload)
-      redis.publish("timeline:hashtag:#{hashtag.mb_chars.downcase}:local", @payload) if @status.local?
     end
   end
 

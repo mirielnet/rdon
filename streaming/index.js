@@ -559,14 +559,7 @@ const startWorker = (workerId) => {
   });
 
   app.get('/api/v1/streaming/hashtag/local', (req, res) => {
-    const { tag } = req.query;
-
-    if (!tag || tag.length === 0) {
-      httpNotFound(res);
-      return;
-    }
-
-    streamFrom(`timeline:hashtag:${tag.toLowerCase()}:local`, req, streamToHttp(req, res), streamHttpEnd(req), true);
+    httpNotFound(res);
   });
 
   app.get('/api/v1/streaming/list', (req, res) => {

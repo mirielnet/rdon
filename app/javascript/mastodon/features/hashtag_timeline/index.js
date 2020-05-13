@@ -98,21 +98,21 @@ class HashtagTimeline extends React.PureComponent {
 
   componentDidMount () {
     const { dispatch } = this.props;
-    const { id, tags, local } = this.props.params;
+    const { id, tags } = this.props.params;
 
     this._subscribe(dispatch, id, tags);
-    dispatch(expandHashtagTimeline(id, { tags, local }));
+    dispatch(expandHashtagTimeline(id, { tags }));
   }
 
   componentWillReceiveProps (nextProps) {
     const { dispatch, params } = this.props;
-    const { id, tags, local } = nextProps.params;
+    const { id, tags } = nextProps.params;
 
-    if (id !== params.id || !isEqual(tags, params.tags) || !isEqual(local, params.local)) {
+    if (id !== params.id || !isEqual(tags, params.tags)) {
       this._unsubscribe();
       this._subscribe(dispatch, id, tags);
       dispatch(clearTimeline(`hashtag:${id}`));
-      dispatch(expandHashtagTimeline(id, { tags, local }));
+      dispatch(expandHashtagTimeline(id, { tags }));
     }
   }
 
@@ -125,8 +125,8 @@ class HashtagTimeline extends React.PureComponent {
   }
 
   handleLoadMore = maxId => {
-    const { id, tags, local } = this.props.params;
-    this.props.dispatch(expandHashtagTimeline(id, { maxId, tags, local }));
+    const { id, tags } = this.props.params;
+    this.props.dispatch(expandHashtagTimeline(id, { maxId, tags }));
   }
 
   render () {

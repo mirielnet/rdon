@@ -73,7 +73,6 @@ class FanOutOnWriteService < BaseService
 
     status.tags.pluck(:name).each do |hashtag|
       Redis.current.publish("timeline:hashtag:#{hashtag.mb_chars.downcase}", @payload)
-      Redis.current.publish("timeline:hashtag:#{hashtag.mb_chars.downcase}:local", @payload) if status.local?
     end
   end
 
