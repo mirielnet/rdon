@@ -167,6 +167,7 @@ class Status < ApplicationRecord
       FormattingHelper.extract_status_plain_text(self),
       preloadable_poll ? preloadable_poll.options.join("\n\n") : nil,
       ordered_media_attachments.map(&:description).join("\n\n"),
+      quote? ? "QT: [#{quote.url || ActivityPub::TagManager.instance.url_for(quote)}]" : nil,
     ].compact.join("\n\n")
   end
 
