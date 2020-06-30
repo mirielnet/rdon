@@ -172,13 +172,8 @@ export function submitCompose(routerHistory) {
         }
       };
 
-      if (response.data.visibility !== 'direct') {
-        insertIfOnline('home');
-      }
-
-      if (response.data.in_reply_to_id === null && response.data.visibility === 'public') {
+      if (response.data.visibility === 'public' || response.data.visibility === 'unlisted') {
         insertIfOnline('community');
-        insertIfOnline('public');
       }
     }).catch(function (error) {
       dispatch(submitComposeFail(error));

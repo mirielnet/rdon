@@ -13,6 +13,13 @@ class ProcessMentionsService < BaseService
     @status  = status
     mentions = []
 
+    # if status.distributable?
+    #   mentioned_account = Account.find_local(ENV.fetch('DEFAULT_GROUP'))
+    #   if !mentioned_account.nil? && mentioned_account.group?
+    #     mentions << mentioned_account.mentions.where(status: status).first_or_create(status: status)
+    #   end
+    # end
+
     status.text = status.text.gsub(Account::MENTION_RE) do |match|
       username, domain = Regexp.last_match(1).split('@')
 

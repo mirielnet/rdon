@@ -158,10 +158,6 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
 
     @status.mentions.create(account: delivered_to_account, silent: true)
     @status.update(visibility: :limited) if @status.direct_visibility?
-
-    return unless delivered_to_account.following?(@account)
-
-    FeedInsertWorker.perform_async(@status.id, delivered_to_account.id, :home)
   end
 
   def attach_tags(status)
