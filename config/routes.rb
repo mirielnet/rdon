@@ -176,6 +176,7 @@ Rails.application.routes.draw do
     resources :aliases, only: [:index, :create, :destroy]
     resources :sessions, only: [:destroy]
     resources :featured_tags, only: [:index, :create, :destroy]
+    resources :favourite_domains, only: [:index, :create, :destroy]
     resources :favourite_tags, only: [:index, :create, :destroy]
     resources :follow_tags, except: [:show]
     resources :account_subscribes, except: [:show]
@@ -482,6 +483,7 @@ Rails.application.routes.draw do
       end
 
       resources :featured_tags, only: [:index, :create, :destroy]
+      resources :favourite_domains, only: [:index, :create, :show, :update, :destroy]
       resources :favourite_tags, only: [:index, :create, :show, :update, :destroy]
       resources :follow_tags, only: [:index, :create, :show, :update, :destroy]
       resources :domain_subscribes, only: [:index, :create, :show, :update, :destroy]
