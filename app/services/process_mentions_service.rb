@@ -64,7 +64,13 @@ class ProcessMentionsService < BaseService
     mentioned_account = mention.account
 
     if mentioned_account.local?
-      LocalNotificationWorker.perform_async(mentioned_account.id, mention.id, mention.class.name)
+      if mentioned_account.group?
+        ActivityPub::DeliveryWorker.push_bulk(mentioned_account.followers.inboxes) do |inbox_url|
+          [activitypub_json, mentioned_account.id, inbox_url]
+        end
+      else
+        LocalNotificationWorker.perform_async(mentioned_account.id, mention.id, mention.class.name)
+      end
     elsif mentioned_account.activitypub?
       ActivityPub::DeliveryWorker.perform_async(activitypub_json, mention.status.account_id, mentioned_account.inbox_url)
     end

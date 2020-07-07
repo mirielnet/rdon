@@ -89,6 +89,7 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
     check_for_spam
     distribute(@status)
     forward_for_reply if @status.distributable?
+    forward_for_group if @status.distributable?
   end
 
   def find_existing_status
@@ -486,6 +487,12 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
     return unless @json['signature'].present? && reply_to_local?
 
     ActivityPub::RawDistributionWorker.perform_async(Oj.dump(@json), replied_to_status.account_id, [@account.preferred_inbox_url])
+  end
+
+  def forward_for_group
+    # return unless @json['signature'].present? && @status.local?
+
+    # ActivityPub::RawDistributionWorker.perform_async(Oj.dump(@json), replied_to_status.account_id, [@account.preferred_inbox_url])
   end
 
   def increment_voters_count!
