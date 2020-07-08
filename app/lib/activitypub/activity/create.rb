@@ -89,7 +89,7 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
     check_for_spam
     distribute(@status)
     forward_for_reply if @status.distributable?
-    forward_for_group if @status.distributable?
+    forward_for_group
   end
 
   def find_existing_status
@@ -490,9 +490,21 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
   end
 
   def forward_for_group
-    # return unless @json['signature'].present? && @status.local?
+    groups = Account.where(id: @status.mentions.pluck(:account_id)).where(actor_type: 'Group')
 
-    # ActivityPub::RawDistributionWorker.perform_async(Oj.dump(@json), replied_to_status.account_id, [@account.preferred_inbox_url])
+    groups.each do |group|
+      next unless @status.distributable?
+      if @json['signature'].present? && audience_includes_followers?(group)
+        ActivityPub::RawDistributionWorker.perform_async(Oj.dump(@json), group.id)
+      else
+        # Annouce
+      end
+    end
+  end
+
+  def audience_includes_followers?(account)
+    url = account_followers_url(account)
+    equals_or_includes?(audience_to, url) || equals_or_includes?(audience_cc, url)
   end
 
   def increment_voters_count!
