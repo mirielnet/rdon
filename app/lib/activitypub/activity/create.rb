@@ -496,9 +496,9 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
       next unless @status.distributable?
       if @json['signature'].present? && audience_includes_followers?(group)
         ActivityPub::RawDistributionWorker.perform_async(Oj.dump(@json), group.id)
-      else
-        # Annouce
       end
+
+      ReblogService.new.call(group, @status, {visibility: :private})
     end
   end
 
