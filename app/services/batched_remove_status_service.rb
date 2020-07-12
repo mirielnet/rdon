@@ -17,7 +17,8 @@ class BatchedRemoveStatusService < BaseService
     @mentions = statuses.each_with_object({}) { |s, h| h[s.id] = s.active_mentions.includes(:account).to_a }
     @tags     = statuses.each_with_object({}) { |s, h| h[s.id] = s.tags.pluck(:name) }
 
-    @json_payloads = statuses.each_with_object({}) { |s, h| h[s.id] = Oj.dump(event: :delete, payload: s.id.to_s) }
+    @json_payloads        = statuses.each_with_object({}) { |s, h| h[s.id] = Oj.dump(event: :delete, payload: s.id.to_s) }
+    @json_reblog_payloads = statuses.each_with_object({}) { |s, h| h[s.id] = Oj.dump(event: :delete, payload: s.reblog.id.to_s) if s.account.group? }
 
     # Ensure that rendered XML reflects destroyed state
     statuses.each do |status|
@@ -39,6 +40,7 @@ class BatchedRemoveStatusService < BaseService
 
     # Cannot be batched
     statuses.each do |status|
+      unpush_from_group_timelines(status)
       unpush_from_public_timelines(status)
     end
   end
@@ -61,6 +63,24 @@ class BatchedRemoveStatusService < BaseService
     account.lists_for_local_distribution.select(:id, :account_id).each do |list|
       statuses.each do |status|
         FeedManager.instance.unpush_from_list(list, status)
+      end
+    end
+  end
+
+  def unpush_from_group_timelines(status)
+    return unless status.account.group?
+
+    redis.publish("timeline:group:#{status.account.id}", @reblog_payload[status.id])
+
+    @tags[status.id].each do |hashtag|
+      redis.publish("timeline:group:#{status.account.id}:#{hashtag.mb_chars.downcase}", @reblog_payload[status.id])
+    end
+
+    if status.media_attachments.any?
+      redis.publish("timeline:group:media:#{status.account.id}", @reblog_payload[status.id])
+
+      @tags[status.id].each do |hashtag|
+        redis.publish("timeline:group:media:#{status.account.id}:#{hashtag.mb_chars.downcase}", @reblog_payload[status.id])
       end
     end
   end

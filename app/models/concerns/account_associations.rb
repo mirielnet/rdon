@@ -61,4 +61,19 @@ module AccountAssociations
     has_and_belongs_to_many :tags
     has_many :featured_tags, -> { includes(:tag) }, dependent: :destroy, inverse_of: :account
   end
+
+  def permitted_group_statuses(account)
+    return Status.none if !group? || !account.nil? && (blocking?(account) || (account.domain.present? && domain_blocking?(account.domain)))
+
+    visibility = [:public, :unlisted]
+    visibility.push(:private) if account&.following?(self)
+
+    scope = Status.where(id:
+                    Status.where(account_id: id)
+                          .where(visibility: visibility)
+                          .select(:reblog_of_id)
+                   )
+    scope = scope.where.not(account_id: account.excluded_from_timeline_account_ids) unless account.nil?
+    scope
+  end
 end

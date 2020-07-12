@@ -91,6 +91,7 @@ class Status < ApplicationRecord
   scope :without_reblogs, -> { where('statuses.reblog_of_id IS NULL') }
   scope :with_public_visibility, -> { where(visibility: :public) }
   scope :tagged_with, ->(tag) { joins(:statuses_tags).where(statuses_tags: { tag_id: tag }) }
+  scope :mentioned_with, ->(account) { joins(:mentions).where(mentions: { account_id: account }) }
   scope :excluding_silenced_accounts, -> { left_outer_joins(:account).where(accounts: { silenced_at: nil }) }
   scope :including_silenced_accounts, -> { left_outer_joins(:account).where.not(accounts: { silenced_at: nil }) }
   scope :not_excluded_by_account, ->(account) { where.not(account_id: account.excluded_from_timeline_account_ids) }
@@ -163,6 +164,12 @@ class Status < ApplicationRecord
 
   def reblog?
     !reblog_of_id.nil?
+  end
+
+  def mentioning?(source_account_id)
+    source_account_id = source_account_id.id if source_account_id.is_a?(Account)
+
+    mentioned_with(source_account_id).exists?
   end
 
   def within_realtime_window?

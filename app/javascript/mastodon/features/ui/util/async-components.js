@@ -22,6 +22,10 @@ export function CommunityTimeline () {
   return import(/* webpackChunkName: "features/community_timeline" */'../../community_timeline');
 }
 
+export function GroupTimeline () {
+  return import(/* webpackChunkName: "features/group_timeline" */'../../group_timeline');
+}
+
 export function HashtagTimeline () {
   return import(/* webpackChunkName: "features/hashtag_timeline" */'../../hashtag_timeline');
 }

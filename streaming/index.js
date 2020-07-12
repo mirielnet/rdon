@@ -277,6 +277,8 @@ const startWorker = (workerId) => {
     'public:local:media',
     'public:remote',
     'public:remote:media',
+    'group',
+    'group:media',
     'hashtag',
     'hashtag:local',
   ];
@@ -309,6 +311,7 @@ const startWorker = (workerId) => {
     '/api/v1/streaming/public',
     '/api/v1/streaming/public/local',
     '/api/v1/streaming/public/remote',
+    '/api/v1/streaming/group',
     '/api/v1/streaming/hashtag',
     '/api/v1/streaming/hashtag/local',
   ];
@@ -573,6 +576,14 @@ const startWorker = (workerId) => {
     streamFrom(channel, req, streamToHttp(req, res), streamHttpEnd(req), true);
   });
 
+  app.get('/api/v1/streaming/group', (req, res) => {
+    const { group_id, tagged } = req.query;
+    const onlyMedia = req.query.only_media === '1' || req.query.only_media === 'true';
+    const channel   = `timeline:group${onlyMedia ? ':media' : ''}:${group_id}${!!tagged && tagged.length !== 0 ? `:${tagged.toLowerCase()}` : ''}`;
+
+    streamFrom(channel, req, streamToHttp(req, res), streamHttpEnd(req), true);
+  });
+
   app.get('/api/v1/streaming/direct', (req, res) => {
     const channel = `timeline:direct:${req.accountId}`;
     streamFrom(channel, req, streamToHttp(req, res), streamHttpEnd(req, subscriptionHeartbeat(channel)), true);
@@ -645,6 +656,10 @@ const startWorker = (workerId) => {
     case 'public:remote':
       streamFrom('timeline:public:remote', req, streamToWs(req, ws), streamWsEnd(req, ws), true);
       break;
+    case 'group':
+      channel   = `timeline:group:${location.query.id}${!!location.query.tagged && location.query.tagged.length !== 0 ? `:${location.query.tagged.toLowerCase()}` : ''}`;
+      streamFrom(channel, req, streamToWs(req, ws), streamWsEnd(req, ws), true);
+      break;
     case 'public:media':
       streamFrom('timeline:public:media', req, streamToWs(req, ws), streamWsEnd(req, ws), true);
       break;
@@ -653,6 +668,10 @@ const startWorker = (workerId) => {
       break;
     case 'public:remote:media':
       streamFrom('timeline:public:remote:media', req, streamToWs(req, ws), streamWsEnd(req, ws), true);
+      break;
+    case 'group:media':
+      channel   = `timeline:group:media:${location.query.id}${!!location.query.tagged && location.query.tagged.length !== 0 ? `:${location.query.tagged.toLowerCase()}` : ''}`;
+      streamFrom('timeline:group:media', req, streamToWs(req, ws), streamWsEnd(req, ws), true);
       break;
     case 'direct':
       channel = `timeline:direct:${req.accountId}`;

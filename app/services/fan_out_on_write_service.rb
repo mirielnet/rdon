@@ -18,6 +18,12 @@ class FanOutOnWriteService < BaseService
       deliver_to_lists(status)
     end
 
+    if status.account.group? && status.reblog?
+      render_anonymous_reblog_payload(status)
+
+      deliver_to_group(status)
+    end
+
     return if status.account.silenced? || !status.public_visibility? || status.reblog?
 
     deliver_to_hashtags(status)
@@ -68,12 +74,35 @@ class FanOutOnWriteService < BaseService
     @payload = Oj.dump(event: :update, payload: @payload)
   end
 
+  def render_anonymous_reblog_payload(status)
+    @reblog_payload = InlineRenderer.render(status.reblog, nil, :status)
+    @reblog_payload = Oj.dump(event: :update, payload: @reblog_payload)
+  end
+
   def deliver_to_hashtags(status)
     Rails.logger.debug "Delivering status #{status.id} to hashtags"
 
     status.tags.pluck(:name).each do |hashtag|
       Redis.current.publish("timeline:hashtag:#{hashtag.mb_chars.downcase}", @payload)
       Redis.current.publish("timeline:hashtag:#{hashtag.mb_chars.downcase}:local", @payload) if status.local?
+    end
+  end
+
+  def deliver_to_group(status)
+    Rails.logger.debug "Delivering status #{status.reblog.id} to group timeline"
+
+    Redis.current.publish("timeline:group:#{status.account.id}", @reblog_payload)
+
+    status.tags.pluck(:name).each do |hashtag|
+      Redis.current.publish("timeline:group:#{status.account.id}:#{hashtag.mb_chars.downcase}", @reblog_payload)
+    end
+
+    if status.media_attachments.any?
+      Redis.current.publish("timeline:group:media:#{status.account.id}", @reblog_payload)
+
+      status.tags.pluck(:name).each do |hashtag|
+        Redis.current.publish("timeline:group:media:#{status.account.id}:#{hashtag.mb_chars.downcase}", @reblog_payload)
+      end
     end
   end
 
