@@ -440,8 +440,12 @@ class Account < ApplicationRecord
       DeliveryFailureTracker.without_unavailable(urls)
     end
 
-    def search_for(terms, limit = 10, offset = 0)
+    def search_for(terms, limit = 10, group = false, offset = 0)
       textsearch, query = generate_query_for_search(terms)
+
+      sql_where_group = <<-SQL if group
+          AND accounts.actor_type = 'Group'
+      SQL
 
       sql = <<-SQL.squish
         SELECT
@@ -451,6 +455,7 @@ class Account < ApplicationRecord
         WHERE #{query} @@ #{textsearch}
           AND accounts.suspended_at IS NULL
           AND accounts.moved_to_account_id IS NULL
+          #{sql_where_group}
         ORDER BY rank DESC
         LIMIT ? OFFSET ?
       SQL
@@ -460,8 +465,12 @@ class Account < ApplicationRecord
       records
     end
 
-    def advanced_search_for(terms, account, limit = 10, following = false, offset = 0)
+    def advanced_search_for(terms, account, limit = 10, following = false, group = false, offset = 0)
       textsearch, query = generate_query_for_search(terms)
+
+      sql_where_group = <<-SQL if group
+          AND accounts.actor_type = 'Group'
+      SQL
 
       if following
         sql = <<-SQL.squish
@@ -481,6 +490,7 @@ class Account < ApplicationRecord
             AND #{query} @@ #{textsearch}
             AND accounts.suspended_at IS NULL
             AND accounts.moved_to_account_id IS NULL
+            #{sql_where_group}
           GROUP BY accounts.id
           ORDER BY rank DESC
           LIMIT ? OFFSET ?
@@ -497,6 +507,7 @@ class Account < ApplicationRecord
           WHERE #{query} @@ #{textsearch}
             AND accounts.suspended_at IS NULL
             AND accounts.moved_to_account_id IS NULL
+            #{sql_where_group}
           GROUP BY accounts.id
           ORDER BY rank DESC
           LIMIT ? OFFSET ?
