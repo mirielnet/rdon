@@ -493,12 +493,11 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
     groups = Account.where(id: @status.mentions.pluck(:account_id)).where(actor_type: 'Group')
 
     groups.each do |group|
-      next unless @status.distributable?
       if @json['signature'].present? && audience_includes_followers?(group)
         ActivityPub::RawDistributionWorker.perform_async(Oj.dump(@json), group.id)
       end
 
-      ReblogService.new.call(group, @status, {visibility: :private})
+      ReblogService.new.call(group, @status, {visibility: @status.visibility})
     end
   end
 
