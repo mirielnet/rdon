@@ -39,6 +39,10 @@ class StatusPolicy < ApplicationPolicy
     staff?
   end
 
+  def show_mentions?
+    limited? && owned?
+  end
+
   private
 
   def requires_mention?
@@ -51,6 +55,10 @@ class StatusPolicy < ApplicationPolicy
 
   def private?
     record.private_visibility?
+  end
+
+  def limited?
+    record.limited_visibility?
   end
 
   def mention_exists?
