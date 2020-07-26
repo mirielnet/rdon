@@ -421,4 +421,8 @@ body.rtl {
   .circle-link .circle-delete-button {
       text-align: right;
   }
+
+  .circle-dropdown .circle-dropdown__menu {
+    background-position: left 8px center;
+  }
 }
