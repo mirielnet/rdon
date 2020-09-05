@@ -257,7 +257,7 @@ class StatusActionBar extends ImmutablePureComponent {
     menu.push(null);
 
     if (status.getIn(['account', 'id']) === me && status.get('visibility') === 'limited' && !status.get('in_reply_to_id')) {
-      menu.push({ text: intl.formatMessage(messages.show_member_list), action: this.handleMemberListClick });
+      menu.push({ text: intl.formatMessage(messages.showMemberList), action: this.handleMemberListClick });
       menu.push(null);
     }
 
