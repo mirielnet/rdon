@@ -365,7 +365,7 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
     uri            = value_or_id(@object['context'])
     conversation ||= ActivityPub::TagManager.instance.uri_to_resource(uri, Conversation)
 
-    return conversation if (conversation.present? && conversation.uri == uri) || !uri.start_with?('https://')
+    return conversation if (conversation.present? && (conversation.local? || conversation.uri == uri)) || !uri.start_with?('https://')
 
     conversation_json = begin
       if @object['context'].is_a?(Hash) && !invalid_origin?(uri)
