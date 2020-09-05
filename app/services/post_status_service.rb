@@ -73,6 +73,7 @@ class PostStatusService < BaseService
 
     ProcessHashtagsService.new.call(@status)
     ProcessMentionsService.new.call(@status, @circle)
+    redis.setex(circle_id_key, 3.days.seconds, @circle.id) if @circle.present?
   end
 
   def schedule_status!
@@ -116,6 +117,10 @@ class PostStatusService < BaseService
 
   def scheduled?
     @scheduled_at.present?
+  end
+
+  def circle_id_key
+    "statuses/#{@status.id}/circle_id"
   end
 
   def idempotency_key
