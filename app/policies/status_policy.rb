@@ -42,7 +42,7 @@ class StatusPolicy < ApplicationPolicy
   end
 
   def show_mentions?
-    limited? && !reply? && owned?
+    limited? && owned? && (!reply? || record.thread.conversation_id != record.conversation_id)
   end
 
   private

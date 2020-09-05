@@ -47,9 +47,7 @@ class ProcessMentionsService < BaseService
       circle.accounts.find_each do |target_account|
         status.mentions.create(silent: true, account: target_account)
       end
-    end
-
-    if status.limited_visibility? && status.thread&.limited_visibility?
+    elsif status.limited_visibility? && status.thread&.limited_visibility?
       # If we are replying to a local status, then we'll have the complete
       # audience copied here, both local and remote. If we are replying
       # to a remote status, only local audience will be copied. Then we

@@ -210,7 +210,7 @@ class ActionBar extends React.PureComponent {
         menu.push({ text: intl.formatMessage(status.get('pinned') ? messages.unpin : messages.pin), action: this.handlePinClick });
       }
 
-      if (status.get('visibility') === 'limited' && !status.get('in_reply_to_id')) {
+      if (status.get('visibility') === 'limited' && status.get('circle_id')) {
         menu.push({ text: intl.formatMessage(messages.showMemberList), action: this.handleMemberListClick });
       }
 

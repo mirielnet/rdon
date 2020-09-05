@@ -73,7 +73,6 @@ class PostStatusService < BaseService
 
     ProcessHashtagsService.new.call(@status)
     ProcessMentionsService.new.call(@status, @circle)
-    redis.setex(circle_id_key, 3.days.seconds, @circle.id) if @circle.present?
   end
 
   def schedule_status!
@@ -119,10 +118,6 @@ class PostStatusService < BaseService
     @scheduled_at.present?
   end
 
-  def circle_id_key
-    "statuses/#{@status.id}/circle_id"
-  end
-
   def idempotency_key
     "idempotency:status:#{@account.id}:#{@options[:idempotency]}"
   end
@@ -163,6 +158,7 @@ class PostStatusService < BaseService
       sensitive: @sensitive,
       spoiler_text: @options[:spoiler_text] || '',
       visibility: @visibility,
+      circle: @circle,
       language: language_from_option(@options[:language]) || @account.user&.setting_default_language&.presence || LanguageDetector.instance.detect(@text, @account),
       application: @options[:application],
       rate_limit: @options[:with_rate_limit],

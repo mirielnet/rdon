@@ -11,7 +11,7 @@ class REST::StatusSerializer < ActiveModel::Serializer
   attribute :muted, if: :current_user?
   attribute :bookmarked, if: :current_user?
   attribute :pinned, if: :pinnable?
-  attribute :circle_id, if: :limited_owned_status?
+  attribute :circle_id, if: :limited_owned_parent_status?
 
   attribute :content, unless: :source_requested?
   attribute :text, if: :source_requested?
@@ -67,8 +67,8 @@ class REST::StatusSerializer < ActiveModel::Serializer
     object.limited_visibility?
   end
 
-  def limited_owned_status?
-    object.limited_visibility? && owned_status? && object.in_reply_to_id.nil?
+  def limited_owned_parent_status?
+    object.limited_visibility? && owned_status? && (!object.reply? || object.thread.conversation_id != object.conversation_id)
   end
 
   def circle_id

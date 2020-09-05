@@ -33,6 +33,7 @@ class Status < ApplicationRecord
   include Cacheable
   include StatusThreadingConcern
   include RateLimitable
+  include Redisable
 
   rate_limit by: :account, family: :statuses
 
@@ -41,6 +42,8 @@ class Status < ApplicationRecord
   # If `override_timestamps` is set at creation time, Snowflake ID creation
   # will be based on current time instead of `created_at`
   attr_accessor :override_timestamps
+
+  attr_accessor :circle
 
   update_index('statuses#status', :proper)
 
@@ -276,6 +279,7 @@ class Status < ApplicationRecord
   before_validation :set_local, on: :create
 
   after_create :set_poll_id
+  after_create :set_circle
 
   class << self
     def selectable_visibilities
@@ -467,10 +471,23 @@ class Status < ApplicationRecord
 
     if reply? && !thread.nil?
       self.in_reply_to_account_id = carried_over_reply_to_account_id
-      self.conversation_id        = thread.conversation_id if conversation_id.nil?
-    elsif conversation_id.nil?
-      build_owned_conversation
     end
+
+    if conversation_id.nil?
+      if reply? && !thread.nil? && circle.nil?
+        self.conversation_id = thread.conversation_id
+      else
+        build_owned_conversation
+      end
+    end
+  end
+
+  def set_circle
+    redis.setex(circle_id_key, 3.days.seconds, circle.id) if circle.present?
+  end
+
+  def circle_id_key
+    "statuses/#{id}/circle_id"
   end
 
   def carried_over_reply_to_account_id
