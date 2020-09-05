@@ -37,7 +37,12 @@ class AccountSearchService < BaseService
       end
     end
 
-    match = nil if !match.nil? && !account.nil? && options[:following] && !account.following?(match)
+    @exact_match = nil
+
+    unless match.nil? || account.nil?
+      return if options[:following] && !account.following?(match)
+      return if options[:followers] && !match.following?(account)
+    end
 
     @exact_match = match
   end
@@ -61,7 +66,7 @@ class AccountSearchService < BaseService
   end
 
   def advanced_search_results
-    Account.advanced_search_for(terms_for_query, account, limit_for_non_exact_results, options[:following], offset)
+    Account.advanced_search_for(terms_for_query, account, limit_for_non_exact_results, offset, options)
   end
 
   def simple_search_results
@@ -74,12 +79,15 @@ class AccountSearchService < BaseService
 
     if account
       return [] if options[:following] && following_ids.empty?
+      return [] if options[:followers] && followers_ids.empty?
 
       if options[:following]
         must_clauses << { terms: { id: following_ids } }
       elsif following_ids.any?
         should_clauses << { terms: { id: following_ids, boost: 100 } }
       end
+
+      must_clauses << { terms: { id: followers_ids } } if options[:followers]
     end
 
     query     = { bool: { must: must_clauses, should: should_clauses } }
@@ -132,6 +140,10 @@ class AccountSearchService < BaseService
 
   def following_ids
     @following_ids ||= account.active_relationships.pluck(:target_account_id) + [account.id]
+  end
+
+  def followers_ids
+    @followers_ids ||= account.passive_relationships.pluck(:account_id) + [account.id]
   end
 
   def limit_for_non_exact_results
