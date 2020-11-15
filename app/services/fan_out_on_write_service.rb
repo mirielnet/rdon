@@ -100,7 +100,7 @@ class FanOutOnWriteService < BaseService
   end
 
   def deliver_to_hashtag_followers_home!
-    scope = FollowTag.home.where(tag_id: @status.tags.map(&:id))
+    scope = FollowTag.home.where(tag_id: @status.tags.map(&:id)).with_media(@status.proper)
     scope = scope.joins(:account).merge(@account.followers_for_local_distribution) if needs_following?
 
     scope.select(:id, :account_id).reorder(nil).find_in_batches do |follows|
@@ -111,7 +111,7 @@ class FanOutOnWriteService < BaseService
   end
 
   def deliver_to_hashtag_followers_list!
-    scope = FollowTag.list.where(tag_id: @status.tags.map(&:id))
+    scope = FollowTag.list.where(tag_id: @status.tags.map(&:id)).with_media(@status.proper)
     scope = scope.joins(:list).merge(List.joins(:account).merge(@account.followers_for_local_distribution)) if needs_following?
 
     scope.select(:id, :list_id).reorder(nil).find_in_batches do |follows|
@@ -127,7 +127,7 @@ class FanOutOnWriteService < BaseService
   end
 
   def deliver_to_subscribers_home!
-    @account.subscribers_for_local_distribution.with_reblog(@status.reblog?).select(:id, :account_id).reorder(nil).find_in_batches do |subscribings|
+    @account.subscribers_for_local_distribution.with_reblog(@status.reblog?).with_media(@status.proper).select(:id, :account_id).reorder(nil).find_in_batches do |subscribings|
       FeedInsertWorker.push_bulk(subscribings) do |subscribing|
         [@status.id, subscribing.account_id, 'home', { 'update' => update? }]
       end
@@ -135,7 +135,7 @@ class FanOutOnWriteService < BaseService
   end
 
   def deliver_to_subscribers_lists!
-    @account.list_subscribers_for_local_distribution.with_reblog(@status.reblog?).select(:id, :account_id).reorder(nil).find_in_batches do |subscribings|
+    @account.list_subscribers_for_local_distribution.with_reblog(@status.reblog?).with_media(@status.proper).select(:id, :account_id).reorder(nil).find_in_batches do |subscribings|
       FeedInsertWorker.push_bulk(subscribings) do |subscribing|
         [@status.id, subscribing.list_id, 'list', { 'update' => update? }]
       end
@@ -148,7 +148,7 @@ class FanOutOnWriteService < BaseService
   end
 
   def deliver_to_domain_subscribers_home!
-    scope = DomainSubscribe.domain_to_home(@account.domain).with_reblog(@status.reblog?)
+    scope = DomainSubscribe.domain_to_home(@account.domain).with_reblog(@status.reblog?).with_media(@status.proper)
     scope = scope.joins(:account).merge(@account.followers_for_local_distribution) if needs_following?
 
     scope.select(:id, :account_id).find_in_batches do |subscribes|
@@ -159,7 +159,7 @@ class FanOutOnWriteService < BaseService
   end
 
   def deliver_to_domain_subscribers_list!
-    scope = DomainSubscribe.domain_to_list(@account.domain).with_reblog(@status.reblog?)
+    scope = DomainSubscribe.domain_to_list(@account.domain).with_reblog(@status.reblog?).with_media(@status.proper)
     scope = scope.joins(:account).merge(@account.followers_for_local_distribution) if needs_following?
 
     scope.select(:id, :list_id).find_in_batches do |subscribes|
@@ -177,7 +177,7 @@ class FanOutOnWriteService < BaseService
   def deliver_to_keyword_subscribers_home!
     match_accounts = []
 
-    scope = KeywordSubscribe.active.without_local_followed_home(@account)
+    scope = KeywordSubscribe.active.with_media(@status.proper).without_local_followed_home(@account)
     scope = scope.joins(:account).merge(@account.followers_for_local_distribution) if needs_following?
 
     scope.order(:account_id).each do |keyword_subscribe|
@@ -193,7 +193,7 @@ class FanOutOnWriteService < BaseService
   def deliver_to_keyword_subscribers_list!
     match_lists = []
 
-    scope = KeywordSubscribe.active.without_local_followed_list(@account)
+    scope = KeywordSubscribe.active.with_media(@status.proper).without_local_followed_list(@account)
     scope = scope.joins(:account).merge(@account.followers_for_local_distribution) if needs_following?
 
     scope.order(:list_id).each do |keyword_subscribe|

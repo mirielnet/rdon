@@ -14,6 +14,7 @@
 #  disabled        :boolean          default(FALSE)
 #  exclude_keyword :string           default(""), not null
 #  list_id         :bigint(8)
+#  media_only      :boolean          default(FALSE), not null
 #
 
 class KeywordSubscribe < ApplicationRecord
@@ -32,6 +33,7 @@ class KeywordSubscribe < ApplicationRecord
   scope :list, -> { where.not(list_id: nil) }
   scope :without_local_followed_home, ->(account) { home.where.not(account: account.delivery_followers.local) }
   scope :without_local_followed_list, ->(account) { list.where.not(list_id: ListAccount.followed_lists(account)) }
+  scope :with_media, ->(status) { where(media_only: false) unless status.with_media? }
 
   def keyword=(val)
     super(regexp ? val : keyword_normalization(val))

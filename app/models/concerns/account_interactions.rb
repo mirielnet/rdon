@@ -211,10 +211,10 @@ module AccountInteractions
   end
 
   def subscribe!(other_account, **options)
-    options = { show_reblogs: true, list_id: nil }.merge(options)
+    options = { show_reblogs: true, list_id: nil, media_only: false }.merge(options)
 
     active_subscribes.find_or_initialize_by(target_account: other_account, list_id: options[:list_id])
-                     .update!(show_reblogs: options[:show_reblogs])
+                     .update!(show_reblogs: options[:show_reblogs], media_only: options[:media_only] || false)
                      .tap { remove_potential_friendship(other_account) }
   end
 

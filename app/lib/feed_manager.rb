@@ -108,14 +108,41 @@ class FeedManager
   # @param [Account] from_account
   # @param [Account] into_account
   # @return [void]
-  def merge_into_home(from_account, into_account, public_only = false)
-    timeline_key = key(:home, into_account.id)
+  def merge_into_home(from_account, into_account, **options)
+    options = { show_reblogs: true }.merge(options)
+
+    if options[:list_id].nil?
+      list = nil
+      type = :home
+      id   = into_account.id
+    else
+      list = List.find(options[:list_id])
+      type = :list
+      id   = options[:list_id]
+    end
+
+    timeline_key = key(type, id)
     aggregate    = true
-    query        = from_account.statuses.where(visibility: public_only ? :public : [:public, :unlisted, :private]).includes(:preloadable_poll, :media_attachments, reblog: :account).limit(FeedManager::MAX_ITEMS / 4)
+
+    query        = from_account.statuses
+    query        = query.where(visibility: options[:public_only] ? :public : [:public, :unlisted, :private])
+
+    if options[:show_reblogs] && options[:media_only]
+      query = begin
+        Status
+          .union(query.where(reblog_of_id: nil).joins(:media_attachments))
+          .union(query.where.not(reblog_of_id: nil).joins({:reblog => :media_attachments}))
+      end
+    else
+      query      = query.joins(:media_attachments) if options[:media_only]
+      query      = query.where(reblog_of_id: nil) if options[:show_reblogs] == false
+    end
+
+    query        = query.includes(:preloadable_poll, reblog: :account).limit(FeedManager::MAX_ITEMS / 4)
 
     if redis.zcard(timeline_key) >= FeedManager::MAX_ITEMS / 4
-      oldest_home_score = redis.zrange(timeline_key, 0, 0, with_scores: true).first.last.to_i
-      query = query.where('id > ?', oldest_home_score)
+      oldest_home_score = redis.zrange(timeline_key, 0, 0).first.to_i
+      query = query.where('id >= ?', oldest_home_score)
     end
 
     statuses = query.to_a
@@ -123,11 +150,12 @@ class FeedManager
 
     statuses.each do |status|
       next if filter_from_home?(status, into_account.id, crutches)
+      next if !list.nil? && filter_from_list?(status, list)
 
       add_to_feed(:home, into_account.id, status, aggregate_reblogs: aggregate)
     end
 
-    trim(:home, into_account.id)
+    trim(type, id)
   end
 
   # Fill a list feed with an account's statuses
