@@ -39,16 +39,19 @@ export const makeGetStatus = () => {
       (state, { id }) => state.getIn(['accounts', state.getIn(['statuses', id, 'account'])]),
       (state, { id }) => state.getIn(['accounts', state.getIn(['statuses', state.getIn(['statuses', id, 'reblog']), 'account'])]),
       (state, { id }) => state.getIn(['accounts', state.getIn(['statuses', state.getIn(['statuses', id, 'quote_id']), 'account'])]),
+      (state, { id }) => state.getIn(['accounts', state.getIn(['statuses', state.getIn(['statuses', id, 'reblog']), 'quote', 'account'])]),
       (state, { id }) => state.getIn(['relationships', state.getIn(['statuses', id, 'account'])]),
       (state, { id }) => state.getIn(['relationships', state.getIn(['statuses', state.getIn(['statuses', id, 'reblog']), 'account'])]),
       (state, { id }) => state.getIn(['relationships', state.getIn(['statuses', state.getIn(['statuses', id, 'quote_id']), 'account'])]),
+      (state, { id }) => state.getIn(['relationships', state.getIn(['statuses', state.getIn(['statuses', id, 'reblog']), 'quote', 'account'])]),
       (state, { id }) => state.getIn(['accounts', state.getIn(['accounts', state.getIn(['statuses', id, 'account']), 'moved'])]),
       (state, { id }) => state.getIn(['accounts', state.getIn(['accounts', state.getIn(['statuses', state.getIn(['statuses', id, 'reblog']), 'account']), 'moved'])]),
       (state, { id }) => state.getIn(['accounts', state.getIn(['accounts', state.getIn(['statuses', state.getIn(['statuses', id, 'quote_id']), 'account']), 'moved'])]),
+      (state, { id }) => state.getIn(['accounts', state.getIn(['accounts', state.getIn(['statuses', state.getIn(['statuses', id, 'reblog']), 'quote', 'account']), 'moved'])]),
       getFilters,
     ],
 
-    (statusBase, statusReblog, statusQuote, accountBase, accountReblog, accountQuote, relationship, reblogRelationship, quoteRelationship, moved, reblogMoved, quoteMoved, filters) => {
+    (statusBase, statusReblog, statusQuote, accountBase, accountReblog, accountQuote, accountReblogQuote, relationship, reblogRelationship, quoteRelationship, reblogQuoteRelationship, moved, reblogMoved, quoteMoved, reblogQuoteMoved, filters) => {
       if (!statusBase) {
         return null;
       }
@@ -76,6 +79,14 @@ export const makeGetStatus = () => {
         statusQuote = statusQuote.set('account', accountQuote);
       } else {
         statusQuote = null;
+      }
+
+      if (statusReblog && accountReblogQuote) {
+        accountReblogQuote = accountReblog.withMutations(map => {
+          map.set('relationship', reblogQuoteRelationship);
+          map.set('moved', reblogQuoteMoved);
+        });
+        statusReblog = statusReblog.setIn(['quote', 'account'], accountReblogQuote);
       }
 
       let filtered = false;
