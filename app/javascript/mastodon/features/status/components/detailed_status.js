@@ -114,7 +114,8 @@ class DetailedStatus extends ImmutablePureComponent {
   }
 
   handleOpenVideoQuote = (options) => {
-    this.props.onOpenVideoQuote(this.props.status.getIn(['quote', 'media_attachments', 0]), options);
+    const quote_status = this.props.status.get('quote')
+    this.props.onOpenVideo(quote_status.getIn(['media_attachments', 0]), options);
   }
 
   handleExpandedToggle = () => {
