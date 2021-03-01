@@ -1315,6 +1315,8 @@ ja:
     contrast: Mastodon (ハイコントラスト)
     default: Mastodon (ダーク)
     mastodon-light: Mastodon (ライト)
+    missing: Missing (ダーク)
+    missing-light: Missing (ライト)
   time:
     formats:
       default: "%Y年%m月%d日 %H:%M"

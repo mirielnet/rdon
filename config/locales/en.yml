@@ -1334,6 +1334,8 @@ en:
     contrast: Mastodon (High contrast)
     default: Mastodon (Dark)
     mastodon-light: Mastodon (Light)
+    missing: Missing (Dark)
+    missing-light: Missing (Light)
   time:
     formats:
       default: "%b %d, %Y, %H:%M"

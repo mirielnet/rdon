@@ -1,3 +1,5 @@
 default: styles/application.scss
 contrast: styles/contrast.scss
 mastodon-light: styles/mastodon-light.scss
+missing: styles/missing.scss
+missing-light: styles/missing-light.scss
