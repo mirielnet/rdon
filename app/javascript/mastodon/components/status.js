@@ -735,6 +735,7 @@ class Status extends ImmutablePureComponent {
 
 }
 
+/* Should it be separated as a "reaction_bar.js"? */
 class ReactionsBar extends ImmutablePureComponent {
 
   static propTypes = {
