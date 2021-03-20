@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_08_133107) do
+ActiveRecord::Schema.define(version: 2021_03_23_114347) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1232,4 +1232,40 @@ ActiveRecord::Schema.define(version: 2021_03_08_133107) do
   SQL
   add_index "instances", ["domain"], name: "index_instances_on_domain", unique: true
 
+  create_view "account_summaries", materialized: true, sql_definition: <<-SQL
+      SELECT accounts.id AS account_id,
+      mode() WITHIN GROUP (ORDER BY t0.language) AS language,
+      mode() WITHIN GROUP (ORDER BY t0.sensitive) AS sensitive
+     FROM (accounts
+       CROSS JOIN LATERAL ( SELECT statuses.account_id,
+              statuses.language,
+              statuses.sensitive
+             FROM statuses
+            WHERE ((statuses.account_id = accounts.id) AND (statuses.deleted_at IS NULL))
+            ORDER BY statuses.id DESC
+           LIMIT 20) t0)
+    GROUP BY accounts.id;
+  SQL
+  add_index "account_summaries", ["account_id"], name: "index_account_summaries_on_account_id", unique: true
+
+  create_view "follow_recommendations", sql_definition: <<-SQL
+      SELECT accounts.id AS account_id,
+      ((count(follows.id))::numeric / (1.0 + (count(follows.id))::numeric)) AS rank
+     FROM ((follows
+       JOIN accounts ON ((accounts.id = follows.target_account_id)))
+       JOIN users ON ((users.account_id = follows.account_id)))
+    WHERE ((users.current_sign_in_at >= (now() - '30 days'::interval)) AND (accounts.suspended_at IS NULL) AND (accounts.moved_to_account_id IS NULL) AND (accounts.silenced_at IS NULL) AND (accounts.locked = false) AND (accounts.discoverable = true))
+    GROUP BY accounts.id
+   HAVING (count(follows.id) > 100)
+  UNION ALL
+   SELECT accounts.id AS account_id,
+      (sum((status_stats.reblogs_count + status_stats.favourites_count)) / (1.0 + sum((status_stats.reblogs_count + status_stats.favourites_count)))) AS rank
+     FROM ((status_stats
+       JOIN statuses ON ((statuses.id = status_stats.status_id)))
+       JOIN accounts ON ((accounts.id = statuses.account_id)))
+    WHERE ((statuses.id > (((date_part('epoch'::text, now()) * (1000)::double precision))::bigint << 16)) AND (accounts.suspended_at IS NULL) AND (accounts.moved_to_account_id IS NULL) AND (accounts.silenced_at IS NULL) AND (accounts.locked = false) AND (accounts.discoverable = true))
+    GROUP BY accounts.id
+   HAVING (sum((status_stats.reblogs_count + status_stats.favourites_count)) > (100)::numeric)
+    ORDER BY 2 DESC;
+  SQL
 end
