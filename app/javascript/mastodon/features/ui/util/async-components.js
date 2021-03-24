@@ -181,3 +181,7 @@ export function GroupDirectory () {
 export function Directory () {
   return import(/* webpackChunkName: "features/directory" */'../../directory');
 }
+
+export function Trends () {
+  return import(/* webpackChunkName: "features/trends" */'../../trends');
+}
