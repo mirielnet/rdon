@@ -85,6 +85,9 @@ Rails.application.configure do
   end
 
   config.x.otp_secret = ENV.fetch('OTP_SECRET', '1fc2b87989afa6351912abeebe31ffc5c476ead9bf8b3d74cbc4a302c7b69a45b40b1bbef3506ddad73e942e15ed5ca4b402bf9a66423626051104f4b5f05109')
+
+  config.hosts << ENV['LOCAL_DOMAIN'] if ENV['LOCAL_DOMAIN'].present?
+  config.hosts << ENV['WEB_DOMAIN'] if ENV['WEB_DOMAIN'].present?
 end
 
 ActiveRecordQueryTrace.enabled = ENV['QUERY_TRACE_ENABLED'] == 'true'
