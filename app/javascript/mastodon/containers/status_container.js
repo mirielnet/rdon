@@ -304,8 +304,8 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
     dispatch(addreaction(status, name, domain));
   },
 
-  removeReaction (status, name, domain) {
-    dispatch(removereaction(status, name, domain));
+  removeReaction (status) {
+    dispatch(removereaction(status));
   },
 
 });

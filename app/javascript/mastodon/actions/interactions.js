@@ -25,6 +25,10 @@ export const FAVOURITES_FETCH_REQUEST = 'FAVOURITES_FETCH_REQUEST';
 export const FAVOURITES_FETCH_SUCCESS = 'FAVOURITES_FETCH_SUCCESS';
 export const FAVOURITES_FETCH_FAIL    = 'FAVOURITES_FETCH_FAIL';
 
+export const EMOJI_REACTIONS_FETCH_REQUEST = 'EMOJI_REACTIONS_FETCH_REQUEST';
+export const EMOJI_REACTIONS_FETCH_SUCCESS = 'EMOJI_REACTIONS_FETCH_SUCCESS';
+export const EMOJI_REACTIONS_FETCH_FAIL    = 'EMOJI_REACTIONS_FETCH_FAIL';
+
 export const MENTIONS_FETCH_REQUEST = 'MENTIONS_FETCH_REQUEST';
 export const MENTIONS_FETCH_SUCCESS = 'MENTIONS_FETCH_SUCCESS';
 export const MENTIONS_FETCH_FAIL    = 'MENTIONS_FETCH_FAIL';
@@ -349,6 +353,41 @@ export function fetchFavouritesFail(id, error) {
   };
 };
 
+export function fetchEmojiReactions(id) {
+  return (dispatch, getState) => {
+    dispatch(fetchEmojiReactionsRequest(id));
+
+    api(getState).get(`/api/v1/statuses/${id}/emoji_reactioned_by`).then(response => {
+      dispatch(importFetchedAccounts(response.data));
+      dispatch(fetchEmojiReactionsSuccess(id, response.data));
+    }).catch(error => {
+      dispatch(fetchEmojiReactionsFail(id, error));
+    });
+  };
+};
+
+export function fetchEmojiReactionsRequest(id) {
+  return {
+    type: EMOJI_REACTIONS_FETCH_REQUEST,
+    id,
+  };
+};
+
+export function fetchEmojiReactionsSuccess(id, accounts) {
+  return {
+    type: EMOJI_REACTIONS_FETCH_SUCCESS,
+    id,
+    accounts,
+  };
+};
+
+export function fetchEmojiReactionsFail(id, error) {
+  return {
+    type: EMOJI_REACTIONS_FETCH_FAIL,
+    error,
+  };
+};
+
 export function fetchMentions(id) {
   return (dispatch, getState) => {
     dispatch(fetchMentionsRequest(id));
@@ -464,7 +503,7 @@ export function addreaction(status, name, domain) {
   return function (dispatch, getState) {
     dispatch(reactionRequest(status));
 
-    api(getState).put(`/api/v1/statuses/${status.get('id')}/reactions/${name}@${domain}`).then(function (response) {
+    api(getState).put(`/api/v1/statuses/${status.get('id')}/emoji_reactions/${name}${domain ? `@${domain}` : ''}`).then(function (response) {
       dispatch(importFetchedStatus(response.data));
       dispatch(reactionSuccess(status));
     }).catch(function (error) {
@@ -498,11 +537,11 @@ export function reactionFail(status, error) {
   };
 };
 
-export function removereaction(status, name, domain) {
+export function removereaction(status) {
   return function (dispatch, getState) {
    dispatch(unreactionRequest(status));
 
-    api(getState).delete(`/api/v1/statuses/${status.get('id')}/reactions/${name}@${domain}`).then(function (response) {
+    api(getState).post(`/api/v1/statuses/${status.get('id')}/emoji_unreaction`).then(function (response) {
       dispatch(importFetchedStatus(response.data));
       dispatch(unreactionSuccess(status));
     }).catch(function (error) {
