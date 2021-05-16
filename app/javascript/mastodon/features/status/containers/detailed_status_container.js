@@ -13,8 +13,8 @@ import {
   unfavourite,
   pin,
   unpin,
-  addreaction,
-  removereaction,
+  addEmojiReaction,
+  removeEmojiReaction,
 } from '../../../actions/interactions';
 import {
   muteStatus,
@@ -190,12 +190,12 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
     }
   },
 
-  addReaction (status, name, domain) {
-    dispatch(addreaction(status, name, domain));
+  addEmojiReaction (status, name, domain, url, static_url) {
+    dispatch(addEmojiReaction(status, name, domain, url, static_url));
   },
 
-  removeReaction (status) {
-    dispatch(removereaction(status));
+  removeEmojiReaction (status) {
+    dispatch(removeEmojiReaction(status));
   },
 
 });
