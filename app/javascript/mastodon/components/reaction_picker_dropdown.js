@@ -297,6 +297,7 @@ export default class ReactionPickerDropdown extends React.PureComponent {
   static propTypes = {
     icon: PropTypes.string.isRequired,
     size: PropTypes.number.isRequired,
+    title: PropTypes.string.isRequired,
     active: PropTypes.bool,
     pressed: PropTypes.bool,
     iconButtonClass: PropTypes.string,
@@ -393,7 +394,7 @@ export default class ReactionPickerDropdown extends React.PureComponent {
     const open = this.state.id === openDropdownId;
 
     return (
-      <div>
+      <div className='emoji-picker-dropdown'>
         <IconButton
           icon={icon}
           title={title}
