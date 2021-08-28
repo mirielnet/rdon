@@ -185,7 +185,6 @@ class ReactionPicker extends React.PureComponent {
           showPreview={false}
           showSkinTones={false}
           notFound={notFoundFn}
-          autoFocus
           emojiTooltip
           style={{width: '100%'}}
         />
