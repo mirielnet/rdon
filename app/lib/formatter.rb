@@ -273,7 +273,7 @@ class Formatter
         x['data-status-account-acct'] = account.acct
       end
     end
-    html = doc.css('body')[0].inner_html
+    html = doc.css('body')[0]&.inner_html || ''
     html.html_safe # rubocop:disable Rails/OutputSafety
   end
 
