@@ -34,6 +34,7 @@ en:
         birthday: Specify the date of birth in the format yyyy-mm-dd（ex. 2016-03-16）
         birthday_caution: It will be published on the Internet. Please handle your personal information with care
         bot: Signal to others that the account mainly performs automated actions and might not be monitored
+        cat: Enable this option to mark this account as a cat (The avatar will be given cat ears and some of the postings will be changed)
         context: One or multiple contexts where the filter should apply
         current_password: For security purposes please enter the password of the current account
         current_username: To confirm, please enter the username of the current account
@@ -162,6 +163,7 @@ en:
         avatar: Avatar
         birthday: Birthday
         bot: This is a bot account
+        cat: Mark this account as a cat
         chosen_languages: Filter languages
         confirm_new_password: Confirm new password
         confirm_password: Confirm password

@@ -18,7 +18,7 @@ module AccountSettings
   end
 
   def cat_ears_color
-    settings['cat_ears_color']
+    settings['cat_ears_color'] if avatar.present?
   end
 
   def birthday

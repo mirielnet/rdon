@@ -129,6 +129,7 @@ class REST::InstanceSerializer < ActiveModel::Serializer
       :emoji_reaction,
       :misskey_birthday,
       :misskey_location,
+      :misskey_cat,
     ]
   end
 

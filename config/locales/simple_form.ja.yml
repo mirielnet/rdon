@@ -34,6 +34,7 @@ ja:
         birthday: 誕生日を年月日の順にyyyy-mm-dd（ex. 2016-03-16）という書式で指定します
         birthday_caution: インターネットに公開されます。個人情報は慎重に取り扱ってください
         bot: このアカウントは主に自動で動作し、人が見ていない可能性があります
+        cat: このアカウントが猫であることを示す場合は、このフラグをオンにします（アバターに猫耳を付与し、投稿の表示の一部が変化します）
         context: フィルターを適用する対象 (複数選択可)
         current_password: 現在のアカウントのパスワードを入力してください
         current_username: 確認のため、現在のアカウントのユーザー名を入力してください
@@ -162,6 +163,7 @@ ja:
         avatar: アイコン
         birthday: 誕生日
         bot: これは BOT アカウントです
+        cat: Catとして設定
         chosen_languages: 表示する言語
         confirm_new_password: 新しいパスワード（確認用）
         confirm_password: パスワード（確認用）

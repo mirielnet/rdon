@@ -8,12 +8,12 @@ class ActivityPub::ActorSerializer < ActivityPub::Serializer
   context_extensions :manually_approves_followers, :featured, :also_known_as,
                      :moved_to, :property_value, :identity_proof,
                      :discoverable, :olm, :suspended, :other_setting,
-                     :vcard
+                     :is_cat, :vcard
 
   attributes :id, :type, :following, :followers,
              :inbox, :outbox, :featured, :featured_tags,
              :preferred_username, :name, :summary,
-             :url, :manually_approves_followers,
+             :url, :manually_approves_followers, :is_cat,
              :discoverable, :published
 
   has_one :public_key, serializer: ActivityPub::PublicKeySerializer
@@ -141,6 +141,10 @@ class ActivityPub::ActorSerializer < ActivityPub::Serializer
 
   def manually_approves_followers
     object.suspended? ? false : object.locked
+  end
+
+  def is_cat
+    object.cat?
   end
 
   def virtual_tags

@@ -60,13 +60,15 @@ export default class Avatar extends React.PureComponent {
     }
 
     return (
-      <div
-        className={classNames('account__avatar', { 'account__avatar-inline': inline, 'account__avatar-cat': isCat })}
-        data-cat-ears-color={catEarsColor}
-        onMouseEnter={this.handleMouseEnter}
-        onMouseLeave={this.handleMouseLeave}
-        style={style}
-      />
+      <div className='account__avatar-stacking-base'>
+        <div
+          className={classNames('account__avatar', { 'account__avatar-inline': inline, 'account__avatar-cat': isCat })}
+          data-cat-ears-color={catEarsColor}
+          onMouseEnter={this.handleMouseEnter}
+          onMouseLeave={this.handleMouseLeave}
+          style={style}
+        />
+      </div>
     );
   }
 

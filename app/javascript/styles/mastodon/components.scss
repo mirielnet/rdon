@@ -1607,13 +1607,78 @@ a .account__avatar {
     position: absolute;
     bottom: 0;
     right: 0;
-    z-index: 1;
+
+    &-stacking-base {
+      position: relative;
+      z-index: 1;
+    }
   
     img {
       @include avatar-radius;
       width: 100%;
       height: 100%;
     }
+  }
+}
+
+@keyframes earwiggleleft {
+	from { transform: rotate(37.6deg) skew(30deg); }
+	25% { transform: rotate(10deg) skew(30deg); }
+	50% { transform: rotate(20deg) skew(30deg); }
+	75% { transform: rotate(0deg) skew(30deg); }
+	to { transform: rotate(37.6deg) skew(30deg); }
+}
+
+@keyframes earwiggleright {
+	from { transform: rotate(-37.6deg) skew(-30deg); }
+	30% { transform: rotate(-10deg) skew(-30deg); }
+	55% { transform: rotate(-20deg) skew(-30deg); }
+	75% { transform: rotate(0deg) skew(-30deg); }
+	to { transform: rotate(-37.6deg) skew(-30deg); }
+}
+
+.account__avatar,
+.account__avatar-overlay-base,
+.account__avatar-overlay-overlay {
+  &-stacking-base {
+    position: relative;
+    z-index: 0;
+  }
+
+  &-cat {
+    border-radius: 100%;
+    white-space: nowrap;
+
+    &:before, &:after {
+			background: #df548f;
+      border: solid 4px var(--cat-ears-color, $primary-text-color);
+			box-sizing: border-box;
+			content: '';
+			display: inline-block;
+			height: 50%;
+			width: 50%;
+      position: relative;
+      z-index: -1;
+		}
+
+    &:before {
+			border-radius: 0 75% 75%;
+			transform: rotate(37.5deg) skew(30deg);
+		}
+
+    &:after {
+			border-radius: 75% 0 75% 75%;
+			transform: rotate(-37.5deg) skew(-30deg);
+		}
+
+    &:hover {
+			&:before {
+				animation: earwiggleleft 1s infinite;
+			}
+			&:after {
+				animation: earwiggleright 1s infinite;
+			}
+		}
   }
 }
 
@@ -1766,6 +1831,63 @@ a.account__display-name {
   position: absolute;
   top: 10px;
   width: 48px;
+}
+
+.card__bar .avatar.cat,
+.directory__card__bar .avatar.cat {
+  padding-top: 0;
+  position: relative;
+}
+
+.card__bar .avatar.cat,
+.directory__card__bar .avatar.cat,
+.status__avatar.cat {
+  white-space: nowrap;
+  color: $dark-text-color;
+
+  img {
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    display: block;
+    overflow: hidden;
+    width: auto;
+    position: absolute;
+    left: 2px;
+    top: 0;
+    z-index: 1;
+    object-fit: cover;
+  }
+
+  &:before, &:after {
+    background: #df548f;
+    border: solid 4px var(--cat-ears-color, $primary-text-color);
+    box-sizing: border-box;
+    content: '';
+    display: inline-block;
+    height: 50%;
+    width: 50%;
+  }
+
+  &:before {
+    border-radius: 0 75% 75%;
+    transform: rotate(37.5deg) skew(30deg);
+  }
+
+  &:after {
+    border-radius: 75% 0 75% 75%;
+    transform: rotate(-37.5deg) skew(-30deg);
+  }
+
+  &:hover {
+    &:before {
+      animation: earwiggleleft 1s infinite;
+    }
+    &:after {
+      animation: earwiggleright 1s infinite;
+    }
+  }
 }
 
 .status__expand {

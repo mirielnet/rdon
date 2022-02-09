@@ -1,7 +1,7 @@
 import escapeTextContentForBrowser from 'escape-html';
 import emojify from '../../features/emoji/emoji';
 import { unescapeHTML } from '../../utils/html';
-import { expandSpoilers } from '../../initial_state';
+import { expandSpoilers, disable_joke_appearance } from '../../initial_state';
 
 const domParser = new DOMParser();
 
@@ -71,6 +71,8 @@ export function normalizeStatus(status, normalOldStatus) {
     if (normalStatus.spoiler_text && !normalStatus.content) {
       normalStatus.content = normalStatus.spoiler_text;
       normalStatus.spoiler_text = '';
+    } else if (!disable_joke_appearance && normalStatus.nyaize_content) {
+      normalStatus.content =  normalStatus.nyaize_content;
     }
 
     const spoilerText   = normalStatus.spoiler_text || '';

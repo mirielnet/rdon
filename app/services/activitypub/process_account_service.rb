@@ -231,6 +231,7 @@ class ActivityPub::ProcessAccountService < BaseService
     birthday
     location
     cat_ears_color
+    is_cat
     noindex
   ).freeze
 

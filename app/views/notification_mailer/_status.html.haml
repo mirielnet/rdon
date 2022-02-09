@@ -31,7 +31,7 @@
                                     = Formatter.instance.format_spoiler(status)
 
                               %div.auto-dir
-                                = Formatter.instance.format(status)
+                                = Formatter.instance.format(status, nyaize: status.account.cat? && !current_user&.setting_disable_joke_appearance)
 
                                 - if status.media_attachments.size > 0
                                   %p
