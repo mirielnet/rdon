@@ -21,7 +21,7 @@ module ActivityPub::CaseTransform
       when Symbol then camel_lower(value.to_s).to_sym
       when String
         camel_lower_cache[value] ||= if value.start_with?('_:')
-                                       '_:' + value.gsub(/\A_:/, '').underscore.camelize(:lower)
+                                       "_:#{value.gsub(/\A_:/, '').underscore.camelize(:lower)}"
                                      elsif NON_CONVERSIONS.include? value
                                        value
                                      else
