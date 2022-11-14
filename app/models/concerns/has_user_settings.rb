@@ -138,4 +138,8 @@ module HasUserSettings
   def hide_all_media?
     settings['web.display_media'] == 'hide_all'
   end
+
+  def setting_show_quote_button
+    settings['web.show_quote_button']
+  end
 end

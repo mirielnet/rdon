@@ -50,6 +50,10 @@ const addAutoPlay = html => {
 
 export default class Card extends React.PureComponent {
 
+  static contextTypes = {
+    router: PropTypes.object,
+  };
+
   static propTypes = {
     card: ImmutablePropTypes.map,
     onOpenMedia: PropTypes.func.isRequired,
@@ -57,6 +61,7 @@ export default class Card extends React.PureComponent {
     defaultWidth: PropTypes.number,
     cacheWidth: PropTypes.func,
     sensitive: PropTypes.bool,
+    quote: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -172,7 +177,7 @@ export default class Card extends React.PureComponent {
   }
 
   render () {
-    const { card, compact } = this.props;
+    const { card, compact, quote } = this.props;
     const { width, embedded, revealed } = this.state;
 
     if (card === null) {
@@ -186,7 +191,7 @@ export default class Card extends React.PureComponent {
     const title       = interactive ? <a className='status-card__title' href={card.get('url')} title={card.get('title')} rel='noopener noreferrer' target='_blank'><strong>{card.get('title')}</strong></a> : <strong className='status-card__title' title={card.get('title')}>{card.get('title')}</strong>;
     const language    = card.get('language') || '';
     const ratio       = card.get('width') / card.get('height');
-    const height      = (compact && !embedded) ? (width / (16 / 9)) : (width / ratio);
+    const height      = ((compact && !embedded) ? (width / (16 / 9)) : (width / ratio)) / (quote ? 2 : 1);
 
     const description = (
       <div className='status-card__content' lang={language}>
