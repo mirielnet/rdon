@@ -102,6 +102,7 @@
   "privacy.mutual.short": "相互フォロー限定",
   "quote_indicator.cancel": "キャンセル",
   "status.cannot_quote": "この投稿は引用できません",
+  "status.emoji_reaction": "絵文字リアクション",
   "status.muted_quote": "ミュートされた引用",
   "status.quote": "引用",
   "status.show_member_list": "メンバーリストを表示",
