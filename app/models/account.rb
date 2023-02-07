@@ -156,7 +156,11 @@ class Account < ApplicationRecord
   alias bot bot?
 
   def bot=(val)
-    self.actor_type = ActiveModel::Type::Boolean.new.cast(val) ? 'Service' : 'Person'
+    # self.actor_type = ActiveModel::Type::Boolean.new.cast(val) ? 'Service' : 'Person'
+  end
+
+  def group=(val)
+    self.actor_type = ActiveModel::Type::Boolean.new.cast(val) ? 'Group' : 'Person'
   end
 
   def group?

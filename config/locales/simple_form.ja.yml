@@ -32,6 +32,7 @@ ja:
         discoverable: ディレクトリはあなたのアカウントをより多くの人に見つけてもらうためのひとつの手段です
         email: 確認のメールが送信されます
         fields: プロフィールに表として4つまでの項目を表示することができます
+        group: このアカウントはグループとして動作します
         header: "%{size}までのPNG、GIF、JPGが利用可能です。 %{dimensions}pxまで縮小されます"
         inbox_url: 使用したいリレーサーバーのトップページからURLをコピーします
         irreversible: フィルターが後で削除されても、除外されたトゥートは元に戻せなくなります
@@ -115,6 +116,7 @@ ja:
         email: メールアドレス
         expires_in: 有効期限
         fields: プロフィール補足情報
+        group: これはグループアカウントです
         header: ヘッダー
         inbox_url: リレーサーバーの inbox URL
         irreversible: 隠すのではなく除外する

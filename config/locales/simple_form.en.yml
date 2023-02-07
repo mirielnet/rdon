@@ -32,6 +32,7 @@ en:
         discoverable: The profile directory is another way by which your account can reach a wider audience
         email: You will be sent a confirmation e-mail
         fields: You can have up to 4 items displayed as a table on your profile
+        group: This account works as a group
         header: PNG, GIF or JPG. At most %{size}. Will be downscaled to %{dimensions}px
         inbox_url: Copy the URL from the frontpage of the relay you want to use
         irreversible: Filtered toots will disappear irreversibly, even if filter is later removed
@@ -115,6 +116,7 @@ en:
         email: E-mail address
         expires_in: Expire after
         fields: Profile metadata
+        group: This is a group account
         header: Header
         inbox_url: URL of the relay inbox
         irreversible: Drop instead of hide
