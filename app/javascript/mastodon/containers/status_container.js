@@ -52,9 +52,8 @@ import { deployPictureInPicture } from '../actions/picture_in_picture';
 import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 import { boostModal, deleteModal, unfollowModal, unsubscribeModal, confirmDomainBlock } from '../initial_state';
 import { showAlertForError } from '../actions/alerts';
-
-import { createSelector } from 'reselect';
-import { Map as ImmutableMap } from 'immutable';
+import { List as ImmutableList } from 'immutable';
+import { me, maxReactionsPerAccount } from 'mastodon/initial_state';
 
 const messages = defineMessages({
   deleteConfirm: { id: 'confirmations.delete.confirm', defaultMessage: 'Delete' },
@@ -74,7 +73,6 @@ const messages = defineMessages({
 const makeMapStateToProps = () => {
   const getStatus = makeGetStatus();
   const getPictureInPicture = makeGetPictureInPicture();
-  const customEmojiMap = createSelector([state => state.get('custom_emojis')], items => items.reduce((map, emoji) => map.set(emoji.get('shortcode'), emoji), ImmutableMap()));
   const getProper = (status) => status.get('reblog', null) !== null && typeof status.get('reblog') === 'object' ? status.get('reblog') : status;
 
   const mapStateToProps = (state, props) => {
@@ -84,15 +82,25 @@ const makeMapStateToProps = () => {
     return {
       status,
       pictureInPicture: getPictureInPicture(state, props),
-      emojiMap: customEmojiMap(state),
       id,
       referenced: state.getIn(['compose', 'references']).has(id),
       contextReferenced: state.getIn(['compose', 'context_references']).has(id),
+      emojiReactions: !!status ? status.get('emoji_reactions', ImmutableList()) : ImmutableList(),
     };
   };
 
   return mapStateToProps;
 };
+
+const mergeProps = ({ status, pictureInPicture, referenced, contextReferenced, emojiReactions }, dispatchProps, ownProps) => ({
+  ...ownProps,
+  ...dispatchProps,
+  status,
+  pictureInPicture,
+  referenced,
+  contextReferenced,
+  reactionLimitReached: emojiReactions.count((emojiReaction) => emojiReaction.get('account_ids', ImmutableList()).includes(me)) >= maxReactionsPerAccount,
+});
 
 const mapDispatchToProps = (dispatch, { intl }) => ({
 
@@ -308,8 +316,8 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
     dispatch(addEmojiReaction(status, name, domain, url, static_url));
   },
 
-  removeEmojiReaction (status) {
-    dispatch(removeEmojiReaction(status));
+  removeEmojiReaction (status, name) {
+    dispatch(removeEmojiReaction(status, name));
   },
 
   onAddReference (id, change) {
@@ -322,4 +330,4 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
 
 });
 
-export default injectIntl(connect(makeMapStateToProps, mapDispatchToProps)(Status));
+export default injectIntl(connect(makeMapStateToProps, mapDispatchToProps, mergeProps)(Status));
