@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_02_21_031206) do
+ActiveRecord::Schema.define(version: 2023_03_10_220030) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -711,6 +711,46 @@ ActiveRecord::Schema.define(version: 2023_02_21_031206) do
     t.datetime "expires_at"
     t.index ["account_id", "target_account_id"], name: "index_mutes_on_account_id_and_target_account_id", unique: true
     t.index ["target_account_id"], name: "index_mutes_on_target_account_id"
+  end
+
+  create_table "nodeinfo_categories", force: :cascade do |t|
+    t.bigint "nodeinfo_id", null: false
+    t.string "category", null: false
+    t.integer "order", default: 0, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["nodeinfo_id"], name: "index_nodeinfo_categories_on_nodeinfo_id"
+  end
+
+  create_table "nodeinfo_languages", force: :cascade do |t|
+    t.bigint "nodeinfo_id", null: false
+    t.string "language", null: false
+    t.integer "order", default: 0, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["nodeinfo_id"], name: "index_nodeinfo_languages_on_nodeinfo_id"
+  end
+
+  create_table "nodeinfos", force: :cascade do |t|
+    t.string "domain", null: false
+    t.jsonb "nodeinfo"
+    t.jsonb "mastodon_instance"
+    t.datetime "last_fetched_at", null: false
+    t.integer "status", default: 0, null: false
+    t.jsonb "override"
+    t.string "note", default: "", null: false
+    t.string "thumbnail_file_name"
+    t.string "thumbnail_content_type"
+    t.bigint "thumbnail_file_size"
+    t.datetime "thumbnail_updated_at"
+    t.string "blurhash"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["domain"], name: "index_nodeinfos_on_domain", using: :hash
+    t.index ["last_fetched_at"], name: "index_nodeinfos_on_last_fetched_at"
+    t.index ["mastodon_instance"], name: "index_nodeinfos_on_mastodon_instance", using: :gin
+    t.index ["nodeinfo"], name: "index_nodeinfos_on_nodeinfo", using: :gin
+    t.index ["override"], name: "index_nodeinfos_on_override", using: :gin
   end
 
   create_table "notifications", force: :cascade do |t|
