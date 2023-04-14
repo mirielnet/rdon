@@ -499,7 +499,7 @@ class ActivityPub::Activity::Create < ActivityPub::Activity
         ActivityPub::RawDistributionWorker.perform_async(Oj.dump(@json), group.id)
       end
 
-      ReblogService.new.call(group, @status, {visibility: @status.visibility})
+      ReblogService.new.call(group, @status, { visibility: Status.visibilities.key([Status.visibilities[@status.visibility], Status.visibilities[group.user&.setting_default_privacy]].max) })
     end
   end
 
