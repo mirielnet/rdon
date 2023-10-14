@@ -1339,7 +1339,7 @@ ja:
     searchabilities:
       direct: リアクション限定
       direct_long: 自身の投稿、リアクションした投稿を検索できます
-      private: フォロワー限定
+      private: フォローとリアクション限定
       private_long: フォローしているアカウントの投稿、リアクション限定の投稿を検索できます
       public: 公開
       public_long: 検索を公開に指定した投稿、フォロワー限定、リアクション限定の投稿を検索できます

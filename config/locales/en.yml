@@ -1399,10 +1399,10 @@ en:
     too_soon: The scheduled date must be in the future
   search:
     searchabilities:
-      direct: Reacted-users-only
+      direct: Reacted-posts-only
       direct_long: Only search to own or reacted posts
-      private: Followers-only
-      private_long: Only search to own or followers or reacted posts
+      private: Follows-and-reaced-posts
+      private_long: Only search to own or follows or reacted posts
       public: Public
       public_long: Everyone can search
   server_directories:
