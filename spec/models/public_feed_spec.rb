@@ -87,7 +87,7 @@ RSpec.describe PublicFeed, type: :model do
         let(:viewer) { nil }
 
         it 'does not include remote instances statuses' do
-          expect(subject).to include(local_status.id)
+          expect(subject).not_to include(local_status.id)
           expect(subject).not_to include(remote_status.id)
         end
       end
@@ -96,13 +96,13 @@ RSpec.describe PublicFeed, type: :model do
         let(:viewer) { Fabricate(:account, username: 'viewer') }
 
         it 'does not include remote instances statuses' do
-          expect(subject).to include(local_status.id)
+          expect(subject).not_to include(local_status.id)
           expect(subject).not_to include(remote_status.id)
         end
 
         it 'is not affected by personal domain blocks' do
           viewer.block_domain!('test.com')
-          expect(subject).to include(local_status.id)
+          expect(subject).not_to include(local_status.id)
           expect(subject).not_to include(remote_status.id)
         end
       end

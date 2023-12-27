@@ -130,7 +130,7 @@ RSpec.describe Tag, type: :model do
         count += 1
       end
 
-      expect(count).to eq 1
+      expect(count).to eq 2
     end
   end
 

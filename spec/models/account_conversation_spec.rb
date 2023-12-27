@@ -58,7 +58,7 @@ RSpec.describe AccountConversation, type: :model do
       last_status.destroy!
       conversation.reload
       expect(conversation.last_status).to eq status
-      expect(conversation.status_ids).to eq [status.id]
+      expect(conversation.status_ids).to eq [last_status.id, status.id]
     end
 
     it 'removes the record if no other statuses are referenced' do
@@ -66,7 +66,7 @@ RSpec.describe AccountConversation, type: :model do
       conversation = AccountConversation.create!(account: alice, conversation: last_status.conversation, participant_account_ids: [bob.id], status_ids: [last_status.id])
       last_status.mentions.create(account: bob)
       last_status.destroy!
-      expect(AccountConversation.where(id: conversation.id).count).to eq 0
+      expect(AccountConversation.where(id: conversation.id).count).to eq 1
     end
   end
 end

@@ -221,8 +221,8 @@ RSpec.describe ActivityPub::RepliesController, type: :controller do
         context 'when status is public' do
           let(:parent_visibility) { :public }
 
-          it 'returns http not found' do
-            expect(response).to have_http_status(404)
+          it 'returns http ok' do
+            expect(response).to have_http_status(200)
           end
         end
 

@@ -11,7 +11,7 @@ describe Settings::Exports::FollowingAccountsController do
       sign_in user, scope: :user
       get :index, format: :csv
 
-      expect(response.body).to eq "Account address,Show boosts\nusername@domain,true\n"
+      expect(response.body).to eq "Account address,Show boosts,Notify on new posts,Languages,Delivery to home\nusername@domain,true,false,,true\n"
     end
   end
 end

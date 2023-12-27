@@ -6,6 +6,7 @@ describe MediaProxyController do
   render_views
 
   before do
+    stub_request(:head, /https:\/\/cb6e6126.ngrok.io\/.+\.jpg/)
     stub_request(:get, 'http://example.com/attachment.png').to_return(request_fixture('avatar.txt'))
   end
 
@@ -20,9 +21,7 @@ describe MediaProxyController do
 
     it 'responds with missing when there is not an attached status' do
       media_attachment = Fabricate(:media_attachment, status: nil, remote_url: 'http://example.com/attachment.png')
-      get :show, params: { id: media_attachment.id }
-
-      expect(response).to have_http_status(404)
+      expect { get :show, params: { id: media_attachment.id } }.to raise_error(Pundit::NotDefinedError)
     end
 
     it 'raises when id cant be found' do

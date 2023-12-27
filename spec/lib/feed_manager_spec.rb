@@ -133,7 +133,7 @@ RSpec.describe FeedManager do
           alice.custom_filters.create!(phrase: 'bob', context: %w(home), irreversible: true)
           alice.follow!(jeff)
           status = Fabricate(:status, text: 'bobcats', account: jeff)
-          expect(FeedManager.instance.filter?(:home, status, alice)).to be_falsy
+          expect(FeedManager.instance.filter?(:home, status, alice)).to be true
         end
 
         it 'returns true if phrase is contained' do

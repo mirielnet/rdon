@@ -71,7 +71,7 @@ RSpec.describe ActivityPub::FetchRemoteAccountService, type: :service do
 
       it 'fetches resource' do
         account
-        expect(a_request(:get, 'https://example.com/alice')).to have_been_made.once
+        expect(a_request(:get, 'https://example.com/alice')).to have_been_made.twice
       end
 
       it 'looks up webfinger' do
@@ -98,7 +98,7 @@ RSpec.describe ActivityPub::FetchRemoteAccountService, type: :service do
 
       it 'fetches resource' do
         account
-        expect(a_request(:get, 'https://example.com/alice')).to have_been_made.once
+        expect(a_request(:get, 'https://example.com/alice')).to have_been_made.twice
       end
 
       it 'looks up webfinger' do

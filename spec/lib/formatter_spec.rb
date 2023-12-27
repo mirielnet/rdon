@@ -17,7 +17,7 @@ RSpec.describe Formatter do
       let(:text) { 'http://google.com' }
 
       it 'matches the full URL' do
-        is_expected.to include 'href="http://google.com"'
+        is_expected.to include 'href="http://google.com/"'
       end
     end
 
@@ -25,7 +25,7 @@ RSpec.describe Formatter do
       let(:text) { 'http://example.gay' }
 
       it 'matches the full URL' do
-        is_expected.to include 'href="http://example.gay"'
+        is_expected.to include 'href="http://example.gay/"'
       end
     end
 
@@ -33,7 +33,7 @@ RSpec.describe Formatter do
       let(:text) { 'https://nic.みんな/' }
 
       it 'matches the full URL' do
-        is_expected.to include 'href="https://nic.みんな/"'
+        is_expected.to include 'href="https://nic.xn--q9jyb4c/"'
       end
 
       it 'has display URL' do
@@ -61,7 +61,7 @@ RSpec.describe Formatter do
       let(:text) { 'http://www.google.com!' }
 
       it 'matches the full URL but not the exclamation point' do
-        is_expected.to include 'href="http://www.google.com"'
+        is_expected.to include 'href="http://www.google.com/"'
       end
     end
 
@@ -69,7 +69,7 @@ RSpec.describe Formatter do
       let(:text) { "http://www.google.com'" }
 
       it 'matches the full URL but not the single quote' do
-        is_expected.to include 'href="http://www.google.com"'
+        is_expected.to include 'href="http://www.google.com/"'
       end
     end
 
@@ -77,7 +77,7 @@ RSpec.describe Formatter do
       let(:text) { 'http://www.google.com>' }
 
       it 'matches the full URL but not the angle bracket' do
-        is_expected.to include 'href="http://www.google.com"'
+        is_expected.to include 'href="http://www.google.com/"'
       end
     end
 
@@ -94,7 +94,7 @@ RSpec.describe Formatter do
         let(:text) { 'https://www.ruby-toolbox.com/search?utf8=✓&q=autolink' }
 
         it 'matches the full URL' do
-          is_expected.to include 'href="https://www.ruby-toolbox.com/search?utf8=✓&amp;q=autolink"'
+          is_expected.to include 'href="https://www.ruby-toolbox.com/search?utf8=%E2%9C%93&amp;q=autolink"'
         end
       end
 
@@ -102,7 +102,7 @@ RSpec.describe Formatter do
         let(:text) { 'https://www.ruby-toolbox.com/search?utf8=✓' }
 
         it 'matches the full URL' do
-          is_expected.to include 'href="https://www.ruby-toolbox.com/search?utf8=✓"'
+          is_expected.to include 'href="https://www.ruby-toolbox.com/search?utf8=%E2%9C%93"'
         end
       end
 
@@ -110,7 +110,7 @@ RSpec.describe Formatter do
         let(:text) { 'https://www.ruby-toolbox.com/search?utf8=%E2%9C%93&utf81=✓&q=autolink' }
 
         it 'preserves escaped unicode characters' do
-          is_expected.to include 'href="https://www.ruby-toolbox.com/search?utf8=%E2%9C%93&amp;utf81=✓&amp;q=autolink"'
+          is_expected.to include 'href="https://www.ruby-toolbox.com/search?utf8=%E2%9C%93&amp;utf81=%E2%9C%93&amp;q=autolink"'
         end
       end
     end
@@ -143,7 +143,7 @@ RSpec.describe Formatter do
       let(:text) { 'https://ja.wikipedia.org/wiki/日本' }
 
       it 'matches the full URL' do
-        is_expected.to include 'href="https://ja.wikipedia.org/wiki/日本"'
+        is_expected.to include 'href="https://ja.wikipedia.org/wiki/%E6%97%A5%E6%9C%AC"'
       end
     end
 
@@ -151,7 +151,7 @@ RSpec.describe Formatter do
       let(:text) { 'https://ko.wikipedia.org/wiki/대한민국' }
 
       it 'matches the full URL' do
-        is_expected.to include 'href="https://ko.wikipedia.org/wiki/대한민국"'
+        is_expected.to include 'href="https://ko.wikipedia.org/wiki/%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD"'
       end
     end
 
@@ -175,7 +175,7 @@ RSpec.describe Formatter do
       let(:text) { 'https://baike.baidu.com/item/中华人民共和国' }
 
       it 'matches the full URL' do
-        is_expected.to include 'href="https://baike.baidu.com/item/中华人民共和国"'
+        is_expected.to include 'href="https://baike.baidu.com/item/%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD"'
       end
     end
 
@@ -183,7 +183,7 @@ RSpec.describe Formatter do
       let(:text) { 'https://zh.wikipedia.org/wiki/臺灣' }
 
       it 'matches the full URL' do
-        is_expected.to include 'href="https://zh.wikipedia.org/wiki/臺灣"'
+        is_expected.to include 'href="https://zh.wikipedia.org/wiki/%E8%87%BA%E7%81%A3"'
       end
     end
 
@@ -396,7 +396,7 @@ RSpec.describe Formatter do
       let(:status) { Fabricate(:status, account: remote_account, text: 'Beep boop') }
 
       it 'reformats the post' do
-        is_expected.to eq 'Beep boop'
+        is_expected.to eq '<p>Beep boop</p>'
       end
 
       context 'given a post with custom_emojify option' do

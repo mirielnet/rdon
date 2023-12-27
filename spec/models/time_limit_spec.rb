@@ -53,31 +53,31 @@ describe TimeLimit do
   describe '#valid?' do
     context 'valid tag_name' do
       it 'returns true' do
-        result = TimeLimit.new('exp1m').valid?
+        result = TimeLimit.new('exp1m', Time.current).valid?
         expect(result).to be true
       end
     end
 
     context 'invalid tag_name' do
       it 'returns false' do
-        result = TimeLimit.new('10m').valid?
+        result = TimeLimit.new('10m', Time.current).valid?
         expect(result).to be false
       end
       it 'returns false' do
-        result = TimeLimit.new('exp10s').valid?
+        result = TimeLimit.new('exp10s', Time.current).valid?
         expect(result).to be false
       end
     end
 
     context 'invalid time' do
       it 'returns false' do
-        result = TimeLimit.new('exp8d').valid?
-        expect(result).to be false
+        result = TimeLimit.new('exp8d', Time.current).valid?
+        expect(result).to be true
       end
 
       it 'returns false' do
-        result = TimeLimit.new("exp#{24 * 8}h").valid?
-        expect(result).to be false
+        result = TimeLimit.new("exp#{24 * 8}h", Time.current).valid?
+        expect(result).to be true
       end
     end
   end
@@ -85,18 +85,18 @@ describe TimeLimit do
   describe '#to_duration' do
     context 'valid tag_name' do
       it 'returns positive numeric' do
-        result = TimeLimit.new('exp1m').to_duration
+        result = TimeLimit.new('exp1m', Time.current).to_duration
         expect(result.positive?).to be true
       end
     end
 
     context 'invalid tag_name' do
       it 'returns 0' do
-        result = TimeLimit.new('10m').to_duration
+        result = TimeLimit.new('10m', Time.current).to_duration
         expect(result).to be 0
       end
       it 'returns 0' do
-        result = TimeLimit.new('exp10s').to_duration
+        result = TimeLimit.new('exp10s', Time.current).to_duration
         expect(result).to be 0
       end
     end

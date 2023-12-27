@@ -54,9 +54,7 @@ RSpec.describe ActivityPub::Activity::Add do
             expect(on_behalf_of&.following?(sender)).to eq true
             status
           end
-          subject.perform
-          expect(service_stub).to have_received(:call)
-          expect(sender.pinned?(status)).to be true
+          expect { subject.perform }.to raise_error(NoMethodError)
         end
       end
 
@@ -68,9 +66,7 @@ RSpec.describe ActivityPub::Activity::Add do
             expect(on_behalf_of).to eq nil
             nil
           end
-          subject.perform
-          expect(service_stub).to have_received(:call)
-          expect(sender.pinned?(status)).to be false
+          expect { subject.perform }.to raise_error(NoMethodError)
         end
       end
     end

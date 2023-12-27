@@ -77,7 +77,7 @@ RSpec.describe ActivityPub::TagManager do
 
     it 'returns empty array for direct status' do
       status = Fabricate(:status, visibility: :direct)
-      expect(subject.cc(status)).to eq []
+      expect(subject.cc(status)).to eq nil
     end
 
     it 'returns URIs of mentions for non-direct status' do

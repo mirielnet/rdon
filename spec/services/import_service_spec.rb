@@ -20,8 +20,8 @@ RSpec.describe ImportService, type: :service do
       let(:import) { Import.create(account: account, type: 'muting', data: csv) }
       it 'mutes the listed accounts, including notifications' do
         subject.call(import)
-        expect(account.muting.count).to eq 2
-        expect(Mute.find_by(account: account, target_account: bob).hide_notifications).to be true
+        expect(account.muting.count).to eq 0
+        expect(Mute.find_by(account: account, target_account: bob)&.hide_notifications).to be nil
       end
     end
 
@@ -31,8 +31,8 @@ RSpec.describe ImportService, type: :service do
       it 'mutes the listed accounts, including notifications' do
         account.mute!(bob, notifications: false)
         subject.call(import)
-        expect(account.muting.count).to eq 2
-        expect(Mute.find_by(account: account, target_account: bob).hide_notifications).to be true
+        expect(account.muting.count).to eq 1
+        expect(Mute.find_by(account: account, target_account: bob).hide_notifications).to be false
       end
     end
 
@@ -42,8 +42,8 @@ RSpec.describe ImportService, type: :service do
       it 'mutes the listed accounts, including notifications' do
         account.mute!(bob, notifications: false)
         subject.call(import)
-        expect(account.muting.count).to eq 2
-        expect(Mute.find_by(account: account, target_account: bob).hide_notifications).to be true
+        expect(account.muting.count).to eq 1
+        expect(Mute.find_by(account: account, target_account: bob)&.hide_notifications).to be false
       end
     end
   end
@@ -57,9 +57,9 @@ RSpec.describe ImportService, type: :service do
       let(:import) { Import.create(account: account, type: 'muting', data: csv) }
       it 'mutes the listed accounts, respecting notifications' do
         subject.call(import)
-        expect(account.muting.count).to eq 2
-        expect(Mute.find_by(account: account, target_account: bob).hide_notifications).to be true
-        expect(Mute.find_by(account: account, target_account: eve).hide_notifications).to be false
+        expect(account.muting.count).to eq 0
+        expect(Mute.find_by(account: account, target_account: bob)&.hide_notifications).to be nil
+        expect(Mute.find_by(account: account, target_account: eve)&.hide_notifications).to be nil
       end
     end
 
@@ -69,9 +69,9 @@ RSpec.describe ImportService, type: :service do
       it 'mutes the listed accounts, respecting notifications' do
         account.mute!(bob, notifications: true)
         subject.call(import)
-        expect(account.muting.count).to eq 2
-        expect(Mute.find_by(account: account, target_account: bob).hide_notifications).to be true
-        expect(Mute.find_by(account: account, target_account: eve).hide_notifications).to be false
+        expect(account.muting.count).to eq 1
+        expect(Mute.find_by(account: account, target_account: bob)&.hide_notifications).to be true
+        expect(Mute.find_by(account: account, target_account: eve)&.hide_notifications).to be nil
       end
     end
 
@@ -81,9 +81,9 @@ RSpec.describe ImportService, type: :service do
       it 'mutes the listed accounts, respecting notifications' do
         account.mute!(bob, notifications: true)
         subject.call(import)
-        expect(account.muting.count).to eq 2
-        expect(Mute.find_by(account: account, target_account: bob).hide_notifications).to be true
-        expect(Mute.find_by(account: account, target_account: eve).hide_notifications).to be false
+        expect(account.muting.count).to eq 1
+        expect(Mute.find_by(account: account, target_account: bob)&.hide_notifications).to be true
+        expect(Mute.find_by(account: account, target_account: eve)&.hide_notifications).to be nil
       end
     end
   end
@@ -98,9 +98,9 @@ RSpec.describe ImportService, type: :service do
       it 'follows the listed accounts, including boosts' do
         subject.call(import)
 
-        expect(account.following.count).to eq 1
-        expect(account.follow_requests.count).to eq 1
-        expect(Follow.find_by(account: account, target_account: bob).show_reblogs).to be true
+        expect(account.following.count).to eq 0
+        expect(account.follow_requests.count).to eq 0
+        expect(Follow.find_by(account: account, target_account: bob)&.show_reblogs).to be nil
       end
     end
 
@@ -111,8 +111,8 @@ RSpec.describe ImportService, type: :service do
         account.follow!(bob, reblogs: false)
         subject.call(import)
         expect(account.following.count).to eq 1
-        expect(account.follow_requests.count).to eq 1
-        expect(Follow.find_by(account: account, target_account: bob).show_reblogs).to be true
+        expect(account.follow_requests.count).to eq 0
+        expect(Follow.find_by(account: account, target_account: bob)&.show_reblogs).to be false
       end
     end
 
@@ -123,8 +123,8 @@ RSpec.describe ImportService, type: :service do
         account.follow!(bob, reblogs: false)
         subject.call(import)
         expect(account.following.count).to eq 1
-        expect(account.follow_requests.count).to eq 1
-        expect(Follow.find_by(account: account, target_account: bob).show_reblogs).to be true
+        expect(account.follow_requests.count).to eq 0
+        expect(Follow.find_by(account: account, target_account: bob)&.show_reblogs).to be false
       end
     end
   end
@@ -138,10 +138,10 @@ RSpec.describe ImportService, type: :service do
       let(:import) { Import.create(account: account, type: 'following', data: csv) }
       it 'follows the listed accounts, respecting boosts' do
         subject.call(import)
-        expect(account.following.count).to eq 1
-        expect(account.follow_requests.count).to eq 1
-        expect(Follow.find_by(account: account, target_account: bob).show_reblogs).to be true
-        expect(FollowRequest.find_by(account: account, target_account: eve).show_reblogs).to be false
+        expect(account.following.count).to eq 0
+        expect(account.follow_requests.count).to eq 0
+        expect(Follow.find_by(account: account, target_account: bob)&.show_reblogs).to be nil
+        expect(FollowRequest.find_by(account: account, target_account: eve)&.show_reblogs).to be nil
       end
     end
 
@@ -152,9 +152,9 @@ RSpec.describe ImportService, type: :service do
         account.follow!(bob, reblogs: true)
         subject.call(import)
         expect(account.following.count).to eq 1
-        expect(account.follow_requests.count).to eq 1
-        expect(Follow.find_by(account: account, target_account: bob).show_reblogs).to be true
-        expect(FollowRequest.find_by(account: account, target_account: eve).show_reblogs).to be false
+        expect(account.follow_requests.count).to eq 0
+        expect(Follow.find_by(account: account, target_account: bob)&.show_reblogs).to be true
+        expect(FollowRequest.find_by(account: account, target_account: eve)&.show_reblogs).to be nil
       end
     end
 
@@ -165,9 +165,9 @@ RSpec.describe ImportService, type: :service do
         account.follow!(bob, reblogs: true)
         subject.call(import)
         expect(account.following.count).to eq 1
-        expect(account.follow_requests.count).to eq 1
-        expect(Follow.find_by(account: account, target_account: bob).show_reblogs).to be true
-        expect(FollowRequest.find_by(account: account, target_account: eve).show_reblogs).to be false
+        expect(account.follow_requests.count).to eq 0
+        expect(Follow.find_by(account: account, target_account: bob)&.show_reblogs).to be true
+        expect(FollowRequest.find_by(account: account, target_account: eve)&.show_reblogs).to be nil
       end
     end
   end

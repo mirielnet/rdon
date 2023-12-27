@@ -3,6 +3,10 @@ require 'rails_helper'
 RSpec.describe ActivityPub::ProcessAccountService, type: :service do
   subject { described_class.new }
 
+  before do
+    stub_request(:get, "https://foo.test/")
+  end
+
   context 'property values' do
     let(:payload) do
       {

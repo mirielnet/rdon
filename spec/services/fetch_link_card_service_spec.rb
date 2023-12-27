@@ -12,6 +12,7 @@ RSpec.describe FetchLinkCardService, type: :service do
     stub_request(:get, 'https://github.com/qbi/WannaCry').to_return(status: 404)
     stub_request(:get, 'http://example.com/test-').to_return(request_fixture('idn.txt'))
     stub_request(:get, 'http://example.com/windows-1251').to_return(request_fixture('windows-1251.txt'))
+    stub_request(:head, "http://sn.jonkman.ca/group/416/id")
 
     subject.call(status)
   end

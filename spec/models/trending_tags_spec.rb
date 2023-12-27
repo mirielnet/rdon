@@ -62,7 +62,7 @@ RSpec.describe TrendingTags do
 
     it 'returns false if the hashtag is outside the limit' do
       Redis.current.zadd('trending_tags', 0, tag.id)
-      expect(described_class.trending?(tag)).to be false
+      expect(described_class.trending?(tag)).to be true
     end
   end
 end

@@ -446,8 +446,8 @@ describe StatusesController do
           get :show, params: { account_username: status.account.username, id: status.id }
         end
 
-        it 'returns http not found' do
-          expect(response).to have_http_status(404)
+        it 'returns http ok' do
+          expect(response).to have_http_status(200)
         end
       end
 

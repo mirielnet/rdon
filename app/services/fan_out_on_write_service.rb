@@ -6,7 +6,7 @@ class FanOutOnWriteService < BaseService
   def call(status)
     raise Mastodon::RaceConditionError if status.visibility.nil?
 
-    deliver_to_self(status) if status.account.local? && !(status.direct_visibility? && status.account.user.setting_hide_direct_from_timeline)
+    deliver_to_self(status) if status.account.local? && !(status.direct_visibility? && status.account.user&.setting_hide_direct_from_timeline)
 
     if status.personal_visibility?
       deliver_to_self_included_lists(status) if status.account.local? && !status.account.user.setting_hide_personal_from_timeline

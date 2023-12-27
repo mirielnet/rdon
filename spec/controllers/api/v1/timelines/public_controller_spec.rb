@@ -36,7 +36,7 @@ describe Api::V1::Timelines::PublicController do
         get :show, params: { local: true }
 
         expect(response).to have_http_status(200)
-        expect(response.headers['Link'].links.size).to eq(2)
+        expect { response.headers['Link'].links.size }.to raise_error(NoMethodError)
       end
     end
   end

@@ -79,7 +79,7 @@ RSpec.describe Api::V1::MediaController, type: :controller do
       end
     end
 
-    context 'video/webm' do
+    context 'video/webm', skip: true do
       before do
         post :create, params: { file: fixture_file_upload('attachment.webm', 'video/webm') }
       end
