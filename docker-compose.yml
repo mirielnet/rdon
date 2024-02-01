@@ -43,7 +43,11 @@ services:
 
   web:
     build: .
+<<<<<<< HEAD
     image: tootsuite/mastodon
+=======
+    image: ghcr.io/mastodon/mastodon:v3.5.17
+>>>>>>> b1ed009c6... Merge pull request from GHSA-3fjr-858r-92rw
     restart: always
     env_file: .env.production
     command: bash -c "rm -f /mastodon/tmp/pids/server.pid; bundle exec rails s -p 3000"
