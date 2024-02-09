@@ -2,14 +2,9 @@
 
 class MisskeySearchabilityUpdateService < BaseService
   def call(account)
-    statuses  = account.statuses.where(searchability: [nil, :private], reblog_of_id: nil)
+    ids = account.statuses.where(searchability: [nil, :private], reblog_of_id: nil).pluck(:id)
 
-    return unless statuses.exists?
-
-    ids = statuses.pluck(:id)
-
-    statuses.update_all('updated_at = CURRENT_TIMESTAMP')
-
+    return unless ids.present?
     return unless Chewy.enabled?
 
     ids.each_slice(100) do |chunk_ids|
